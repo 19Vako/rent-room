@@ -3,10 +3,13 @@ import Google from "next-auth/providers/google"
 import Apple from "next-auth/providers/apple"
 import Credentials from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
+import bcrypt from "bcryptjs"
 import clientPromise from "./lib/mongodb"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   adapter: MongoDBAdapter(clientPromise),
+  session: { strategy: "jwt" },
+
   providers: [
     Google,
     Apple,
@@ -19,30 +22,60 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       
       async authorize(credentials) {
      
-        if (credentials.email === "admin@test.com") {
-          return { id: "1", name: "Admin", email: "admin@test.com", role: "ADMIN" }
+        if (!credentials?.email || !credentials?.password) return null;
+
+        const client = await clientPromise;
+        const db = client.db("courseWork");
+        
+        const user = await db.collection("users").findOne({ email: credentials.email });
+        
+        if (!user || !user.password) {
+          throw new Error("User not found or password not set");
         }
-        return null
+
+        const isPasswordValid = await bcrypt.compare(credentials.password as string, user.password);
+        
+        if (!isPasswordValid) {
+          throw new Error("Invalid password");
+        }
+
+        return { 
+            id: user._id.toString(), 
+            name: user.name, 
+            email: user.email, 
+            role: user.role 
+        };
       }
+
     }),
   ],
 
-  session: { strategy: "jwt" },
-  
   callbacks: {
     
     async jwt({ token, user }) {
    
-      if (user) token.role = user.role || "USER"
-      return token
+      if(user){
+        token.id = user.id;
+        if (user.email === process.env.ADMIN_EMAIL) {
+          token.role = "ADMIN";
+        } else {
+          token.role = user.role || "USER";
+        }
+      }
+      
+      return token;
     },
 
     async session({ session, token }) {
     
-      if (session.user) session.user.role = token.role as string
+      if (session.user){
+        session.user.id = token.id as string;
+        session.user.role = token.role as "ADMIN" | "GUEST";
+      }
+        
       return session
     },
-
+    
     authorized({ request, auth }) {
       const { pathname } = request.nextUrl
  
@@ -63,6 +96,6 @@ declare module "next-auth" {
     } & import("next-auth").DefaultSession["user"]
   }
   interface User {
-    role?: string
+    role?: "ADMIN" | "GUEST";
   }
 }
