@@ -28,7 +28,7 @@ export async function createRoom(formData: Room) {
   }
 }
 
-export async function deleteRoom(roomId: string){
+export async function deleteRoom(roomId: string) {
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Only admins can delete rooms")
     }
@@ -71,3 +71,46 @@ export async function updateRoom(roomId: string, formData: Room) {
         return { success: false, error: "Something went wrong" }
     }
 }
+
+export async function addRoomImage(roomId: string, imageUrl: string) {
+    if (session?.user?.role !== "ADMIN") {
+        throw new Error("Only admins can add images to rooms")
+    }
+
+    try {
+        const updatedRoom = await db.collection<Room>("rooms").updateOne(
+            { _id: new ObjectId(roomId) },
+            { $push: { images: imageUrl } }
+        )
+
+        revalidatePath("/")
+
+        return { success: true, updatedCount: updatedRoom.modifiedCount }
+    } catch (error) {
+        console.error("Database Error:", error)
+        return { success: false, error: "Something went wrong" }
+    }
+}
+
+export async function removeRoomImage(roomId: string, imageUrl: string) {
+    if (session?.user?.role !== "ADMIN") {
+        throw new Error("Only admins can remove images from rooms")
+    }
+
+    try {
+        const updatedRoom = await db.collection<Room>("rooms").updateOne(
+            { _id: new ObjectId(roomId) },
+            { $pull: { images: imageUrl } }
+        )
+
+        revalidatePath("/")
+
+        return { success: true, updatedCount: updatedRoom.modifiedCount }
+    } catch (error) {
+        console.error("Database Error:", error)
+        return { success: false, error: "Something went wrong" }
+    }
+}
+
+
+
