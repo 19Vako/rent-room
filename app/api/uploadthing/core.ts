@@ -1,4 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { auth } from "@/auth";
 
 const f = createUploadthing();
 
@@ -6,12 +7,17 @@ export const ourFileRouter = {
 
   roomImage: f({ image: { maxFileSize: "16MB", maxFileCount: 5 } })
     .middleware(async ({ req }) => {
-      return { }; 
+      
+      const session = await auth();
+
+      if (!session?.user || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Только администратор может загружать фото комнат");
+      }
+
+      return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-   
-      console.log("File URL: ", file.url);
-      return { url: file.url };
+      return { url: file.ufsUrl };
     }),
 } satisfies FileRouter;
 
