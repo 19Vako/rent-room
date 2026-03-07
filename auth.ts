@@ -3,16 +3,28 @@ import Google from "next-auth/providers/google"
 import Apple from "next-auth/providers/apple"
 import Credentials from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
+import { authConfig } from "./auth.config"
 import bcrypt from "bcryptjs"
 import clientPromise from "./lib/mongodb"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   adapter: MongoDBAdapter(clientPromise),
-  session: { strategy: "jwt" },
 
   providers: [
-    Google,
-    Apple,
+    Google({
+      profile(profile) {
+      const userRole = profile.email === process.env.ADMIN_EMAIL ? "ADMIN" : "GUEST";
+      
+      return {
+        id: profile.sub,
+        name: profile.name,
+        email: profile.email,
+        role: userRole,
+        orders: [], 
+      }
+      }
+    }),
     Credentials({
     
       credentials: {
@@ -50,52 +62,4 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     }),
   ],
 
-  callbacks: {
-    
-    async jwt({ token, user }) {
-   
-      if(user){
-        token.id = user.id;
-        if (user.email === process.env.ADMIN_EMAIL) {
-          token.role = "ADMIN";
-        } else {
-          token.role = user.role || "USER";
-        }
-      }
-      
-      return token;
-    },
-
-    async session({ session, token }) {
-    
-      if (session.user){
-        session.user.id = token.id as string;
-        session.user.role = token.role as "ADMIN" | "GUEST";
-      }
-        
-      return session
-    },
-    
-    authorized({ request, auth }) {
-      const { pathname } = request.nextUrl
- 
-      if (pathname.startsWith("/admin")) {
-        return auth?.user?.role === "ADMIN"
-      }
-      return true
-    },
-
-  },
 })
-
-
-declare module "next-auth" {
-  interface Session {
-    user: {
-      role?: string
-    } & import("next-auth").DefaultSession["user"]
-  }
-  interface User {
-    role?: "ADMIN" | "GUEST";
-  }
-}
