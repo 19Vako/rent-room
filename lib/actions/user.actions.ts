@@ -19,12 +19,13 @@ export async function registerUser(name: string, email: string, password: string
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+    const isAdmin = email === process.env.ADMIN_EMAIL;
 
     const newUser: User = {
       name,
       email,
       password: hashedPassword, 
-      role: "GUEST",
+      role: isAdmin ? "ADMIN" : "GUEST",
       orders: [],
     };
 
