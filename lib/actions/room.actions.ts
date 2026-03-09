@@ -7,10 +7,52 @@ import { ObjectId } from "mongodb"
 import { auth } from "@/auth"
 
 const client = await clientPromise
-const db = client.db("courseWork")
+const db = client.db(process.env.DB_NAME)
 const session = await auth()
 
-export async function createRoom(formData: Room) {
+export async function getAllRooms() {
+    try {
+        const rooms = await db.collection("rooms").find().toArray();
+             
+        const formattedRooms = rooms.map((room) => {
+            const { _id, ...rest } = room;  
+            return {
+                id: _id.toString(),
+                ...rest
+            };
+        }) as Room[];
+
+        return { success: true, rooms: formattedRooms };
+    } catch (error) {
+        console.error("Database Error:", error);
+        return { success: false, error: "Something went wrong" };
+    }
+}
+
+export async function getRoomById(roomId: string) {
+    try {
+        const room = await db.collection("rooms").findOne({
+            _id: new ObjectId(roomId)
+        });
+
+        if (!room) {
+            return { success: false, error: "Room not found" };
+        }
+
+        const { _id, ...rest } = room;
+        const formattedRoom = {
+            id: _id.toString(),
+            ...rest
+        } as Room;
+
+        return { success: true, room: formattedRoom };
+    } catch (error) {
+        console.error("Database Error:", error);
+        return { success: false, error: "Something went wrong" };
+    }
+}
+
+export async function createRoom(formData: Omit<Room, "id">) {
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Only admins can create rooms")
   }
@@ -55,9 +97,6 @@ export async function updateRoom(roomId: string, formData: Room) {
     }
 
     try {
-        const client = await clientPromise
-        const db = client.db("courseWork")
-
         const updatedRoom = await db.collection("rooms").updateOne(
             { _id: new ObjectId(roomId) },
             { $set: { ...formData } }
