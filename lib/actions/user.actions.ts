@@ -11,7 +11,7 @@ export async function registerUser(name: string, email: string, password: string
     }
 
     const client = await clientPromise;
-    const db = client.db("courseWork");
+    const db = client.db(process.env.DB_NAME);
 
     const existingUser = await db.collection("users").findOne({ email });
     if (existingUser) {
