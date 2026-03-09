@@ -1,6 +1,5 @@
 import NextAuth from "next-auth"
 import Google from "next-auth/providers/google"
-import Apple from "next-auth/providers/apple"
 import Credentials from "next-auth/providers/credentials"
 import { MongoDBAdapter } from "@auth/mongodb-adapter"
 import { authConfig } from "./auth.config"
@@ -9,10 +8,12 @@ import clientPromise from "./lib/mongodb"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   ...authConfig,
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise, { databaseName: process.env.DB_NAME }),
 
   providers: [
     Google({
+      clientId: process.env.AUTH_GOOGLE_ID,
+      clientSecret: process.env.AUTH_GOOGLE_SECRET,
       profile(profile) {
       const userRole = profile.email === process.env.ADMIN_EMAIL ? "ADMIN" : "GUEST";
       
@@ -37,7 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
 
         const client = await clientPromise;
-        const db = client.db("courseWork");
+        const db = client.db(process.env.DB_NAME);
         
         const user = await db.collection("users").findOne({ email: credentials.email });
         
