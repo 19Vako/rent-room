@@ -7,7 +7,7 @@ import { auth } from "@/auth"
 import { revalidatePath } from "next/cache"
 
 const client = await clientPromise
-const db = client.db("courseWork")
+const db = client.db(process.env.DB_NAME)
 const session = await auth()
 
 
@@ -15,7 +15,8 @@ export async function createOrder(
     roomId: string, 
     checkInDate: Date, 
     checkOutDate: Date, 
-    price: number
+    price: number,
+    numberOfPeople: number,
 ) {
     
     if (!session?.user?.id) {
@@ -42,6 +43,7 @@ export async function createOrder(
 
         const newOrder = {
             userId: new ObjectId(session.user.id),
+            numberOfPeople: numberOfPeople,
             roomId: new ObjectId(roomId),
             price: price,
             checkInDate: new Date(checkInDate),
