@@ -1,80 +1,140 @@
 "use client";
+import Room from "@/types/Room";
 
 import { useState } from "react";
+// Обязательно проверь правильность пути импорта для твоего проекта!
+import { getAvailableRooms } from "@/lib/actions/order.actions"; 
 
 export default function SearchWidget() {
-  // Заглушки для логики (состояния)
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
 
-  // Функция, которая потом будет фильтровать комнаты
-  const handleSearch = () => {
-    console.log("Ищем свободные номера:", { checkIn, checkOut, guests });
-    // В будущем здесь мы будем менять URL, например:
-    // router.push(`/?checkIn=${checkIn}&checkOut=${checkOut}&guests=${guests}`)
+  // --- НОВЫЕ СТЕЙТЫ ДЛЯ ДАННЫХ ---
+  const [rooms, setRooms] = useState<Room[]>([]); // Сюда положим результат
+  const [isLoading, setIsLoading] = useState(false); // Крутилка загрузки
+  const [error, setError] = useState(""); // Сообщения об ошибках
+
+  const handleSearch = async () => {
+    // Базовая валидация: проверяем, выбрал ли юзер даты
+    if (!checkIn || !checkOut) {
+      setError("Пожалуйста, выберите даты заезда и выезда.");
+      return;
+    }
+
+    // Проверяем, что дата выезда позже даты заезда
+    if (new Date(checkIn) >= new Date(checkOut)) {
+      setError("Дата выезда должна быть позже даты заезда.");
+      return;
+    }
+
+    setIsLoading(true);
+    setError("");
+    setRooms([]);
+
+    try {
+      // Магия Next.js: вызываем серверную функцию напрямую!
+      const result = await getAvailableRooms(
+        new Date(checkIn), 
+        new Date(checkOut), 
+        guests
+      );
+
+      if (result.success && result.rooms) {
+        setRooms(result.rooms); // Сохраняем найденные комнаты в стейт
+        console.log("Найденные комнаты:", result.rooms);
+      } else {
+        setError(result.error || "Не удалось найти комнаты.");
+      }
+    } catch (err) {
+      console.error(err);
+      setError("Произошла системная ошибка.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    // Желтая обертка в стиле Booking
-    <div className="bg-[#febb02] p-1 rounded shadow-lg flex flex-col md:flex-row gap-1 w-full max-w-4xl mx-auto">
-      
-      {/* Блок выбора дат (Заезд - Выезд) */}
-      <div className="flex bg-white rounded-sm items-center flex-1 relative">
-        <div className="flex items-center pl-4 pr-2">
-          {/* Иконка календаря */}
-          <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-          </svg>
-        </div>
-        <div className="flex flex-1 divide-x divide-gray-300">
-          <input 
-            type="date" 
-            className="w-full py-3 px-2 outline-none bg-transparent text-gray-800 font-medium cursor-pointer"
-            value={checkIn}
-            onChange={(e) => setCheckIn(e.target.value)}
-            title="Дата заезда"
-          />
-          <input 
-            type="date" 
-            className="w-full py-3 px-2 outline-none bg-transparent text-gray-800 font-medium cursor-pointer"
-            value={checkOut}
-            onChange={(e) => setCheckOut(e.target.value)}
-            title="Дата выезда"
-          />
-        </div>
-      </div>
+    <div className="flex flex-col items-center w-full">
+      {/* Тот самый желтый виджет поиска */}
+      <div className="bg-[#febb02] p-1 rounded shadow-lg flex flex-wrap md:flex-nowrap gap-1 w-full max-w-6xl mx-auto">
+        <div className="flex flex-wrap md:flex-nowrap flex-1 bg-white rounded-sm divide-x divide-gray-300">
+          {/* ... твои инпуты для дат и гостей остаются без изменений ... */}
+          {/* 1. Дата заезда */}
+          <div className="flex flex-1 items-center px-4 py-2 min-w-[150px]">
+            {/* ... svg ... */}
+            <input 
+              type="date" 
+              className="w-full py-2 outline-none bg-transparent"
+              value={checkIn}
+              onChange={(e) => setCheckIn(e.target.value)}
+            />
+          </div>
 
-      {/* Блок количества гостей */}
-      <div className="flex bg-white rounded-sm items-center w-full md:w-[250px]">
-        <div className="flex items-center pl-4 pr-2">
-          {/* Иконка человека */}
-          <svg className="w-6 h-6 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-          </svg>
+          {/* 2. Дата выезда */}
+          <div className="flex flex-1 items-center px-4 py-2 min-w-[150px]">
+            {/* ... svg ... */}
+            <input 
+              type="date" 
+              className="w-full py-2 outline-none bg-transparent"
+              value={checkOut}
+              onChange={(e) => setCheckOut(e.target.value)}
+            />
+          </div>
+
+          {/* 3. Гости */}
+          <div className="flex flex-1 items-center px-4 py-2 min-w-[150px] md:max-w-[250px]">
+            {/* ... svg ... */}
+            <select 
+              className="w-full py-2 outline-none bg-transparent"
+              value={guests}
+              onChange={(e) => setGuests(Number(e.target.value))}
+            >
+              {[1, 2, 3, 4, 5, 6].map(num => (
+                <option key={num} value={num}>{num} гостей</option>
+              ))}
+            </select>
+          </div>
         </div>
-        {/* Используем обычный select для простоты, стилизуем под текст */}
-        <select 
-          className="w-full py-3 pr-4 outline-none bg-transparent text-gray-800 font-medium cursor-pointer"
-          value={guests}
-          onChange={(e) => setGuests(Number(e.target.value))}
+
+        {/* Кнопка с индикатором загрузки */}
+        <button 
+          onClick={handleSearch}
+          disabled={isLoading}
+          className="bg-[#0071c2] hover:bg-[#005999] disabled:bg-blue-300 text-white text-xl font-bold py-3 px-8 rounded-sm transition-colors duration-200 shrink-0 w-full md:w-auto flex justify-center items-center"
         >
-          {[1, 2, 3, 4, 5, 6, 7, 8].map(num => (
-            <option key={num} value={num}>
-              {num} {num === 1 ? 'гость' : num < 5 ? 'гостя' : 'гостей'}
-            </option>
-          ))}
-        </select>
+          {isLoading ? "Ищем..." : "Найти"}
+        </button>
       </div>
 
-      {/* Синяя кнопка "Найти" */}
-      <button 
-        onClick={handleSearch}
-        className="bg-[#0071c2] hover:bg-[#005999] text-white text-xl font-bold py-3 px-8 rounded-sm transition-colors duration-200"
-      >
-        Найти
-      </button>
+      {/* Вывод ошибки, если она есть */}
+      {error && (
+        <div className="mt-4 text-red-500 font-semibold bg-red-50 p-3 rounded w-full max-w-6xl">
+          {error}
+        </div>
+      )}
 
+      <div className="mt-10 w-full max-w-6xl">
+        {rooms.length > 0 ? (
+          <div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-6">Доступные варианты:</h2>
+            <div className="flex flex-col gap-4">
+              {rooms.map((room) => (
+                // Позже мы заменим этот div на твой красивый компонент <RoomCard />
+                <div key={room.id?.toString()} className="p-4 border border-gray-200 rounded-lg bg-white shadow-sm">
+                  <h3 className="text-xl font-bold text-[#0071c2]">{room.roomName}</h3>
+                  <p>Вместимость: до {room.capacity} гостей</p>
+                  <p className="font-bold mt-2">Цена: {room.price} ₴ / ночь</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          !isLoading && checkIn && checkOut && !error && (
+            <p className="text-gray-500 text-center py-10">Пока мы ничего не нашли. Попробуйте изменить даты поиска.</p>
+          )
+        )}
+      </div>
     </div>
-  );
+  )
 }
