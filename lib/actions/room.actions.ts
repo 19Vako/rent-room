@@ -6,11 +6,12 @@ import { revalidatePath } from "next/cache"
 import { ObjectId } from "mongodb"
 import { auth } from "@/auth"
 
-const client = await clientPromise
-const db = client.db(process.env.DB_NAME)
-const session = await auth()
+
 
 export async function getAllRooms() {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+
     try {
         const rooms = await db.collection("rooms").find().toArray();
              
@@ -30,6 +31,9 @@ export async function getAllRooms() {
 }
 
 export async function getRoomById(roomId: string) {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+
     try {
         const room = await db.collection("rooms").findOne({
             _id: new ObjectId(roomId)
@@ -53,6 +57,9 @@ export async function getRoomById(roomId: string) {
 }
 
 export async function createRoom(formData: Omit<Room, "id">) {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Only admins can create rooms")
   }
@@ -71,6 +78,9 @@ export async function createRoom(formData: Omit<Room, "id">) {
 }
 
 export async function deleteRoom(roomId: string) {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Only admins can delete rooms")
     }
@@ -92,6 +102,9 @@ export async function deleteRoom(roomId: string) {
 }
 
 export async function updateRoom(roomId: string, formData: Room) {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Only admins can update rooms")
     }
@@ -112,6 +125,9 @@ export async function updateRoom(roomId: string, formData: Room) {
 }
 
 export async function addRoomImage(roomId: string, imageUrl: string) {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Only admins can add images to rooms")
     }
@@ -132,6 +148,9 @@ export async function addRoomImage(roomId: string, imageUrl: string) {
 }
 
 export async function removeRoomImage(roomId: string, imageUrl: string) {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Only admins can remove images from rooms")
     }
