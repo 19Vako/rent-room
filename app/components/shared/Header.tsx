@@ -1,0 +1,51 @@
+import Link from "next/link";
+ 
+import { auth } from "@/auth"; 
+import LogoutButton from "../ui/LogoutButton";
+
+export default async function Header() {
+   
+  const session = await auth();
+
+  return (
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          
+       
+          <div className="flex-shrink-0 flex items-center">
+            <Link href="/" className="text-2xl font-bold text-[#0071c2]">
+                RentRoom
+            </Link>
+          </div>
+
+        
+          <div className="flex items-center gap-4">
+            
+              <div className="flex items-center gap-4">
+               
+                {session?.user.role === "ADMIN" && (
+                  <Link 
+                    href="/admin" 
+                    className="text-sm font-medium text-gray-700 hover:text-[#0071c2] transition-colors"
+                  >
+                    Admin Panel
+                  </Link>
+                )}
+                
+               
+                <span className="hidden sm:block text-sm text-gray-600">
+                  Hi <span className="font-semibold">{session?.user.name}</span>
+                </span>
+                
+               
+                <LogoutButton />
+              </div>
+            
+          </div>
+          
+        </div>
+      </div>
+    </header>
+  );
+}
