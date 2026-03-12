@@ -27,30 +27,39 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       
+      
       const isAdminRoute = nextUrl.pathname.startsWith('/admin');
       if (isAdminRoute) {
         if (!isLoggedIn) return false;  
-        if (auth.user.role !== "ADMIN") {
+        if (auth.user?.role !== "ADMIN") {
           return Response.redirect(new URL('/', nextUrl));  
         }
         return true; 
+      }
+
+ 
+      const isAuthRoute = nextUrl.pathname === '/login' || nextUrl.pathname === '/register';
+      if (isAuthRoute) {
+        if (isLoggedIn) {
+        
+          if (auth.user?.role === "ADMIN") {
+            return Response.redirect(new URL('/admin', nextUrl));
+          }
+ 
+          return Response.redirect(new URL('/', nextUrl)); 
+        }
+        return true;
       }
 
       if (!isLoggedIn) {
         return false;
       }
 
-      const isAuthRoute = nextUrl.pathname === '/login' || nextUrl.pathname === '/register';
-      if (isAuthRoute) {
-        if (isLoggedIn) {
-          return Response.redirect(new URL('/', nextUrl)); 
-        }
-        return true;
-      }
+      return true;
 
-      return true; 
     },
   },
+  
 } satisfies NextAuthConfig;
 
  
