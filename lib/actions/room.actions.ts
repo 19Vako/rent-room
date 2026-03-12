@@ -8,7 +8,7 @@ import { auth } from "@/auth"
 
 
 
-export async function getAllRooms() {
+export async function getAllRooms(): Promise<{ success: boolean, rooms?: Room[], error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
 
@@ -30,7 +30,7 @@ export async function getAllRooms() {
     }
 }
 
-export async function getRoomById(roomId: string) {
+export async function getRoomById(roomId: string): Promise<{ success: boolean, room?: Room, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
 
@@ -56,7 +56,7 @@ export async function getRoomById(roomId: string) {
     }
 }
 
-export async function createRoom(formData: Omit<Room, "id">) {
+export async function createRoom(formData: Omit<Room, "id">): Promise<{ success: boolean, roomId?: ObjectId, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
@@ -77,7 +77,7 @@ export async function createRoom(formData: Omit<Room, "id">) {
   }
 }
 
-export async function deleteRoom(roomId: string) {
+export async function deleteRoom(roomId: string): Promise<{ success: boolean, deletedCount?: number, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
@@ -101,7 +101,7 @@ export async function deleteRoom(roomId: string) {
     }
 }
 
-export async function updateRoom(roomId: string, formData: Room) {
+export async function updateRoom(roomId: string, formData: Room): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
@@ -124,7 +124,7 @@ export async function updateRoom(roomId: string, formData: Room) {
     }
 }
 
-export async function addRoomImage(roomId: string, imageUrl: string) {
+export async function addRoomImage(roomId: string, imageUrl: string): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
@@ -147,7 +147,7 @@ export async function addRoomImage(roomId: string, imageUrl: string) {
     }
 }
 
-export async function removeRoomImage(roomId: string, imageUrl: string) {
+export async function removeRoomImage(roomId: string, imageUrl: string): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
