@@ -1,6 +1,7 @@
 "use server"
 
 import clientPromise from "@/lib/mongodb"
+import { signOut } from "@/auth";
 import User from "@/types/User";
 import bcrypt from "bcryptjs"
 
@@ -41,4 +42,8 @@ export async function registerUser(name: string, email: string, password: string
     console.error("Registration error:", error);
     return { success: false, error: "Failed to create user" };
   }
+}
+
+export async function logout() {
+  await signOut({ redirectTo: "/login" }); 
 }
