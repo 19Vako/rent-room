@@ -1,7 +1,8 @@
 "use client"
 
-import { signIn } from "next-auth/react"
+
 import { useState } from "react"
+import { signIn, getSession } from "next-auth/react";
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
@@ -28,7 +29,12 @@ export default function LoginPage() {
       if (res?.error) {
         setError("Invalid email or password");
       } else {
-        router.push("/");  
+        const session = await getSession();
+        if (session?.user?.role === "ADMIN") {
+          router.push("/admin");
+        } else {
+          router.push("/");
+        }
         router.refresh(); 
       }
     } catch {
@@ -52,7 +58,7 @@ export default function LoginPage() {
 
         <div className="flex flex-col gap-3 mb-6">
           <button 
-            onClick={() => signIn("google", { callbackUrl: "/" })}
+            onClick={() => signIn("google")}
             className="flex items-center justify-center w-full py-2.5 bg-white text-black rounded font-medium hover:bg-gray-100 transition-colors"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
