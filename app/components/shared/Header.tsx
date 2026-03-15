@@ -23,17 +23,7 @@ export default async function Header() {
           <div className="flex items-center gap-4">
             
               <div className="flex items-center gap-4">
-               
-                {session?.user.role === "ADMIN" && (
-                  <Link 
-                    href="/admin" 
-                    className="text-sm font-medium text-gray-700 hover:text-[#0071c2] transition-colors"
-                  >
-                    Admin Panel
-                  </Link>
-                )}
-                
-               
+
                 <span className="hidden sm:block text-sm text-gray-600">
                   Hi <span className="font-semibold">{session?.user.name}</span>
                 </span>
