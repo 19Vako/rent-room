@@ -5,10 +5,7 @@ import RoomList from "./components/shared/RoomList";
 export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50">
-      
       <Header />
-
-
       <section 
         className="relative pt-24 pb-32 px-4 flex flex-col items-center justify-center bg-[#003580]" 
       >
