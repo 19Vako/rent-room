@@ -12,8 +12,8 @@ import Room from "@/types/Room"
 
 export async function createOrder(
     roomId: string, 
-    checkInDate: Date, 
-    checkOutDate: Date, 
+    checkInDate: string, 
+    checkOutDate: string, 
     price: number,
     numberOfPeople: number,
 ): Promise<{ success: boolean, error?: string }> {
@@ -70,13 +70,24 @@ export async function createOrder(
 }
 
 export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, numberOfPeople: number): Promise<{ success: boolean, rooms?: Room[], error?: string }> {
-    const client = await clientPromise
-    const db = client.db(process.env.DB_NAME)
-    try {
-
+  const client = await clientPromise
+  const db = client.db(process.env.DB_NAME)
+  
+  try {
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
 
+ 
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    if (checkIn < today) {
+      return { success: false, error: "The check-in date cannot be in the past." };
+    }
+
+    if (checkOut <= checkIn) {
+      return { success: false, error: "The check-out date must be later than the check-in date." };
+    }
 
     const overlappingOrders = await db.collection<Order>("orders").find({
       status: { $in: ["PENDING", "CONFIRMED"] },
@@ -86,12 +97,12 @@ export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, n
       ]
     }).project({ roomId: 1 }).toArray();
 
- 
     const bookedRoomIds = overlappingOrders.map(order => order.roomId);
 
     const rawRooms = await db.collection("rooms").find({
       _id: { $nin: bookedRoomIds },
-      capacity: { $gte: numberOfPeople }
+      capacity: { $gte: numberOfPeople },
+      status: "AVAILABLE"
     }).toArray();
 
     const availableRooms: Room[] = rawRooms.map(room => ({
@@ -104,12 +115,11 @@ export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, n
       status: room.status,
     }));
 
-
     return { success: true, rooms: JSON.parse(JSON.stringify(availableRooms)) };
 
   } catch (error) {
     console.error("Database Error:", error)
-    return { success: false, error: "Something went wrong" }
+    return { success: false, error: "An error occurred while searching for rooms." }
   }
 }
 
