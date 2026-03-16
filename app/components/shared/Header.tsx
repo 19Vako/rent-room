@@ -1,5 +1,4 @@
 import Link from "next/link";
- 
 import { auth } from "@/auth"; 
 import LogoutButton from "../ui/LogoutButton";
 
@@ -15,7 +14,7 @@ export default async function Header() {
        
           <div className="flex-shrink-0 flex items-center">
             <Link href="/" className="text-2xl font-bold text-[#0071c2]">
-                RentRoom
+              RentRoom
             </Link>
           </div>
 
@@ -27,8 +26,7 @@ export default async function Header() {
                 <span className="hidden sm:block text-sm text-gray-600">
                   Hi <span className="font-semibold">{session?.user.name}</span>
                 </span>
-                
-               
+            
                 <LogoutButton />
               </div>
             
