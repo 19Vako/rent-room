@@ -8,7 +8,7 @@ export default function SearchWidget() {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
 
-  const { setRooms, setIsLoading, setError, setSearchDates, isLoading } = useSearchRoomsStore();
+  const { setRooms, setIsLoading, setError, setNumberOfPeople, setSearchDates, isLoading } = useSearchRoomsStore();
 
   const handleSearch = async () => {
     if (!checkIn || !checkOut) {
@@ -25,6 +25,7 @@ export default function SearchWidget() {
     setError("");
     setRooms([]);
     setSearchDates({ checkIn, checkOut });
+    setNumberOfPeople(guests); 
 
     try {
       const result = await getAvailableRooms(new Date(checkIn), new Date(checkOut), guests);
