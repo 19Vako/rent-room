@@ -1,22 +1,12 @@
-"use client";
-
 import Image from "next/image";
 import Link from "next/link";
 import Room from "@/types/Room";
-import { useSearchRoomsStore } from "@/store/useSearchRoomsStore"; 
 
 export default function RoomListCard({ room }: { room: Room }) {
-    const { searchDates } = useSearchRoomsStore();
 
     const imageUrl = room.photoUrl && room.photoUrl.length > 0 ? room.photoUrl[0] : "/199685538-appareil-photo-et-icône-d-image-ou-d-image-symbole-rempli-de-galerie-d-album-et-de-photographie.jpg"; 
 
-    const queryParams = new URLSearchParams();
-    if (searchDates) {
-      queryParams.append("checkIn", searchDates.checkIn);
-      queryParams.append("checkOut", searchDates.checkOut);
-    }
-
-    const href = room.id ? `/room/${room.id}?${queryParams.toString()}` : "#";
+    const href = room.id ? `/room/${room.id}` : "#";
 
     return (
     <Link href={href} className="flex flex-wrap border border-gray-300 rounded-lg p-4 gap-4 md:gap-6 bg-white shadow-sm hover:shadow-md transition-shadow w-full">
