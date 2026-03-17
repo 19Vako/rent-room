@@ -6,11 +6,60 @@ import { revalidatePath } from "next/cache"
 import { ObjectId } from "mongodb"
 import { auth } from "@/auth"
 
-const client = await clientPromise
-const db = client.db("courseWork")
-const session = await auth()
 
-export async function createRoom(formData: Room) {
+
+export async function getAllRooms(): Promise<{ success: boolean, rooms?: Room[], error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+
+    try {
+        const rooms = await db.collection("rooms").find().toArray();
+             
+        const formattedRooms = rooms.map((room) => {
+            const { _id, ...rest } = room;  
+            return {
+                id: _id.toString(),
+                ...rest
+            };
+        }) as Room[];
+
+        return { success: true, rooms: formattedRooms };
+    } catch (error) {
+        console.error("Database Error:", error);
+        return { success: false, error: "Something went wrong" };
+    }
+}
+
+export async function getRoomById(roomId: string): Promise<{ success: boolean, room?: Room, error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+
+    try {
+        const room = await db.collection("rooms").findOne({
+            _id: new ObjectId(roomId)
+        });
+
+        if (!room) {
+            return { success: false, error: "Room not found" };
+        }
+
+        const { _id, ...rest } = room;
+        const formattedRoom = {
+            id: _id.toString(),
+            ...rest
+        } as Room;
+
+        return { success: true, room: formattedRoom };
+    } catch (error) {
+        console.error("Database Error:", error);
+        return { success: false, error: "Something went wrong" };
+    }
+}
+
+export async function createRoom(formData: Omit<Room, "id">): Promise<{ success: boolean, roomId?: ObjectId, error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
   if (session?.user?.role !== "ADMIN") {
     throw new Error("Only admins can create rooms")
   }
@@ -28,7 +77,10 @@ export async function createRoom(formData: Room) {
   }
 }
 
-export async function deleteRoom(roomId: string){
+export async function deleteRoom(roomId: string): Promise<{ success: boolean, deletedCount?: number, error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Only admins can delete rooms")
     }
@@ -49,15 +101,15 @@ export async function deleteRoom(roomId: string){
     }
 }
 
-export async function updateRoom(roomId: string, formData: Room) {
+export async function updateRoom(roomId: string, formData: Room): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Only admins can update rooms")
     }
 
     try {
-        const client = await clientPromise
-        const db = client.db("courseWork")
-
         const updatedRoom = await db.collection("rooms").updateOne(
             { _id: new ObjectId(roomId) },
             { $set: { ...formData } }
@@ -71,3 +123,52 @@ export async function updateRoom(roomId: string, formData: Room) {
         return { success: false, error: "Something went wrong" }
     }
 }
+
+export async function addRoomImage(roomId: string, imageUrl: string): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
+    if (session?.user?.role !== "ADMIN") {
+        throw new Error("Only admins can add images to rooms")
+    }
+
+    try {
+        const updatedRoom = await db.collection<Room>("rooms").updateOne(
+            { _id: new ObjectId(roomId) },
+            { $push: { images: imageUrl } }
+        )
+
+        revalidatePath("/")
+
+        return { success: true, updatedCount: updatedRoom.modifiedCount }
+    } catch (error) {
+        console.error("Database Error:", error)
+        return { success: false, error: "Something went wrong" }
+    }
+}
+
+export async function removeRoomImage(roomId: string, imageUrl: string): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
+    if (session?.user?.role !== "ADMIN") {
+        throw new Error("Only admins can remove images from rooms")
+    }
+
+    try {
+        const updatedRoom = await db.collection<Room>("rooms").updateOne(
+            { _id: new ObjectId(roomId) },
+            { $pull: { images: imageUrl } }
+        )
+
+        revalidatePath("/")
+
+        return { success: true, updatedCount: updatedRoom.modifiedCount }
+    } catch (error) {
+        console.error("Database Error:", error)
+        return { success: false, error: "Something went wrong" }
+    }
+}
+
+
+

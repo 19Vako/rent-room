@@ -1,20 +1,23 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
+import { auth } from "@/auth";
 
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  // Определяем маршрут для загрузки фото комнаты
+
   roomImage: f({ image: { maxFileSize: "16MB", maxFileCount: 5 } })
     .middleware(async ({ req }) => {
-      // Здесь позже можно добавить проверку сессии на АДМИНА
-      // const session = await auth();
-      // if (session?.user?.role !== "ADMIN") throw new Error("Unauthorized");
-      return { }; 
+      
+      const session = await auth();
+
+      if (!session?.user || session.user.role !== "ADMIN") {
+        throw new Error("Unauthorized: Только администратор может загружать фото комнат");
+      }
+
+      return { userId: session.user.id };
     })
     .onUploadComplete(async ({ metadata, file }) => {
-      // Этот код сработает на сервере, когда картинка загрузится
-      console.log("File URL: ", file.url);
-      return { url: file.url };
+      return { url: file.ufsUrl };
     }),
 } satisfies FileRouter;
 
