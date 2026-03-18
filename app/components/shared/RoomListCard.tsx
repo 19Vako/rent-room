@@ -9,7 +9,7 @@ export default function RoomListCard({ room }: { room: Room }) {
     const href = room.id ? `/room/${room.id}` : "#";
 
     return (
-    <Link href={href} className="flex flex-wrap border border-gray-300 rounded-lg p-4 gap-4 md:gap-6 bg-white shadow-sm hover:shadow-md transition-shadow w-full">
+    <Link href={href} className="flex flex-wrap justify-end border border-gray-300 rounded-lg p-4 gap-4 md:gap-6 bg-white shadow-sm hover:shadow-md transition-shadow w-full">
       
       <div className="relative w-full md:w-[260px] h-[200px] flex-shrink-0 rounded-lg overflow-hidden">
         <Image
@@ -20,9 +20,9 @@ export default function RoomListCard({ room }: { room: Room }) {
         />
       </div>
 
-      <div className="flex-1 flex flex-col justify-center gap-4">
+      <div className="flex-1  flex flex-col justify-center ">
         <div className="flex items-center gap-2">
-          <h2 className="text-2xl font-bold text-[#0071c2] hover:underline cursor-pointer">
+          <h2 className="text-2xl   font-bold text-[#0071c2] hover:underline cursor-pointer">
             {room.roomName}
           </h2>
         </div>
@@ -35,7 +35,7 @@ export default function RoomListCard({ room }: { room: Room }) {
         </div>
       </div>
 
-      <div className="flex flex-col justify-center md:w-[220px] w-full flex-shrink-0 mt-4 md:mt-0 md:pl-4 md:border-l border-gray-100">
+      <div className="flex flex-col justify-center md:w-[180px] w-full flex-shrink-0 mt-4 md:mt-0 md:pl-4 md:border-l border-gray-100">
         <div className="text-left md:text-right w-full">
           <div className="text-sm text-gray-500">1 night, {room.capacity} adults</div>
           <div className="text-2xl font-bold text-gray-900">UAH {room.price}</div>
