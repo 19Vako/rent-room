@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useSearchRoomsStore } from "@/store/useSearchRoomsStore";
 
 export default function PriceFilter() {
-  const { rooms, priceRange, setPriceRange } = useSearchRoomsStore();
+  const { rooms, priceRange, setPriceRange, isLoading } = useSearchRoomsStore();
 
   
   const { absoluteMin, absoluteMax } = useMemo(() => {
@@ -23,6 +23,10 @@ export default function PriceFilter() {
   const currentMin = localMin ?? priceRange?.min ?? absoluteMin;
   const currentMax = localMax ?? priceRange?.max ?? absoluteMax;
 
+  // Показываем фильтр цены только после появления данных в списке.
+  // Иначе на старте/во время загрузки он выглядит "в пустоту".
+  if (isLoading || rooms.length === 0) return null;
+
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Math.min(Number(e.target.value), currentMax - 100);
     setLocalMin(value);
@@ -40,6 +44,8 @@ export default function PriceFilter() {
   };
 
   return (
+    <>
+    <h2 className="text-2xl font-bold text-gray-800">Filters</h2>
     <div className="w-full max-w-sm p-4 rounded-xl border border-gray-300 rounded-lg p-4 gap-4 md:gap-6 bg-white shadow-sm hover:shadow-md transition-shadow">
       <h3 className="text-lg font-bold text-gray-900 mb-4">Ваш бюджет (за ночь)</h3>
       
@@ -77,5 +83,6 @@ export default function PriceFilter() {
         />
       </div>
     </div>
+    </>
   );
 }
