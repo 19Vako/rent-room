@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { auth } from "@/auth"; 
 import LogoutButton from "../ui/LogoutButton";
+import ProfileButton from "../ui/ProfileButton";
 
 export default async function Header() {
    
@@ -22,12 +23,9 @@ export default async function Header() {
           <div className="flex items-center gap-4">
             
               <div className="flex items-center gap-4">
-
-                <span className="hidden sm:block text-sm text-gray-600">
-                  Hi <span className="font-semibold">{session?.user.name}</span>
-                </span>
             
                 <LogoutButton />
+                <ProfileButton userName={session?.user.name || session?.user.email || "User"} />
               </div>
             
           </div>
