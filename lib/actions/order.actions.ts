@@ -123,6 +123,23 @@ export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, n
   }
 }
 
+export async function getUserOrders(): Promise<{ success: boolean, orders?: Order[], error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
+    if (!session?.user?.id) {
+        return { success: false, error: "Please log in to the system" }
+    }
+
+    try {
+        const orders = await db.collection<Order>("orders").find({ userId: new ObjectId(session.user.id) }).toArray()
+        return { success: true, orders: JSON.parse(JSON.stringify(orders)) }
+    } catch (error) {
+        console.error("Database Error:", error)
+        return { success: false, error: "Something went wrong" }
+    }
+}
+
 export async function cancelOrder(orderId: string): Promise<{ success: boolean, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
