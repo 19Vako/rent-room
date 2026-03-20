@@ -9,9 +9,7 @@ export default function Home() {
       <Header />
       
       
-      <section 
-        className="relative pt-24 pb-32 px-4 flex flex-col items-center justify-center bg-[#003580]" 
-      >
+      <section className="relative pt-24 pb-32 px-4 flex flex-col items-center justify-center bg-[#003580]" >
         <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col gap-6">
           <div>
             <h1 className="text-white text-4xl md:text-5xl font-bold mb-2">
@@ -24,7 +22,7 @@ export default function Home() {
 
           <div className="mt-4">
             <SearchWidget />
-          </div>
+        </div>
         </div>
       </section>
       
@@ -34,7 +32,6 @@ export default function Home() {
         
         <aside className="w-full lg:w-[320px] shrink-0">
           <div className="lg:sticky lg:top-28 space-y-6">
-            <h2 className="text-2xl font-bold text-gray-800">Filters</h2>
             <PriceFilter />
           </div>
         </aside>
