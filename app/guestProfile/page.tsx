@@ -3,6 +3,7 @@ import { getUserOrders } from "@/lib/actions/order.actions";
 import { auth } from "@/auth";
 import OrderList from "../components/shared/OrderList";
 import BackButton from "../components/shared/BackButton";
+ 
 
 
 
@@ -30,8 +31,8 @@ export default async function ProfilePage() {
 
       <section className="px-4 md:px-10 -mt-10">
         <div className="max-w-6xl mx-auto bg-white p-6 md:p-10 rounded-lg shadow-xl min-h-[400px]">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">Your Bookings</h2>
-
+          <BackButton />
+          <h2 className="text-2xl mt-8 font-bold text-gray-900 mb-8">Your Bookings</h2>
           {!response.success || !response.orders ? (
             <div className="p-10 text-center text-red-600 bg-red-50 rounded-lg border border-red-200">
               Error: {response.error || "Failed to load your bookings."}
@@ -43,6 +44,7 @@ export default async function ProfilePage() {
               </svg>
               You don't have any bookings yet. Time to plan your next trip!
             </div>
+            
           ) : (
             <OrderList orders={response.orders} />
           )}
