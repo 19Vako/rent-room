@@ -8,7 +8,7 @@ export default function SearchWidget() {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
 
-  const { setRooms, setIsLoading, setError, setNumberOfPeople, setSearchDates, isLoading } = useSearchRoomsStore();
+  const { setRooms, setIsLoading, setError, setNumberOfPeople, setSearchDates, searchDates, isLoading } = useSearchRoomsStore();
 
   const handleSearch = async () => {
     if (!checkIn || !checkOut) {
@@ -52,7 +52,7 @@ export default function SearchWidget() {
             <input 
               type="date" 
               className="w-full py-2   outline-none bg-transparent"
-              value={checkIn}
+              value={searchDates?.checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
             />
           </div>
@@ -61,7 +61,7 @@ export default function SearchWidget() {
             <input 
               type="date" 
               className="w-full py-2 outline-none bg-transparent"
-              value={checkOut}
+              value={searchDates?.checkOut}
               onChange={(e) => setCheckOut(e.target.value)}
             />
           </div>
