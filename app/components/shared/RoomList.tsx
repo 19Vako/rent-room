@@ -4,7 +4,7 @@ import RoomListCard from "./RoomListCard";
 
 export default function RoomList() {
 
-  const { rooms, isLoading, error, searchDates } = useSearchRoomsStore();
+  const { rooms, priceRange, isLoading, error, searchDates } = useSearchRoomsStore();
 
   if (isLoading) {
     return (
@@ -30,12 +30,19 @@ export default function RoomList() {
     );
   }
 
+  const filteredRooms = rooms.filter((room) => {
+    if (!priceRange) return true;
+    return room.price >= priceRange.min && room.price <= priceRange.max;
+  });
+
+
+
   if (rooms.length > 0) {
     return (
-      <div className="w-full max-w-5xl mx-auto mt-8">
+      <div className="w-full max-w-5xl">
         <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Options:</h2>
         <div className="flex flex-col gap-5 w-full">
-          {rooms.map((room) => (
+          {filteredRooms.map((room) => (
 
             <RoomListCard key={room.id?.toString()} room={room} />
 
