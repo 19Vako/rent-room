@@ -50,7 +50,7 @@ export default function SearchWidget() {
           <div className="flex flex-1 items-center px-4 py-2 min-w-[150px]">
             <input 
               type="date" 
-              className="w-full py-2   outline-none bg-transparent"
+              className="w-full py-2 outline-none bg-transparent"
               value={checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
             />
