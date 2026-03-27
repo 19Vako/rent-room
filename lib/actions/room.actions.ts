@@ -56,6 +56,42 @@ export async function getRoomById(roomId: string): Promise<{ success: boolean, r
     }
 }
 
+export async function blockRoomDates(
+  roomId: string,
+  startDate: string,
+  endDate: string,
+  reason: Room["status"]
+): Promise<{ success: boolean; error?: string }> {
+  
+  const client = await clientPromise;
+  const db = client.db(process.env.DB_NAME);
+
+  try {
+    const start = new Date(`${startDate}T00:00:00.000Z`);
+    const end = new Date(`${endDate}T23:59:59.999Z`);
+
+    // Простая валидация дат
+    if (end < start) {
+      return { success: false, error: "End date cannot be before start date." };
+    }
+
+    // Записываем блокировку в новую коллекцию
+    await db.collection("blocked_dates").insertOne({
+      roomId: new ObjectId(roomId),
+      startDate: start,
+      endDate: end,
+      reason: reason,
+      createdAt: new Date(),
+    });
+
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    console.error("Error blocking dates:", error);
+    return { success: false, error: "Something went wrong while blocking dates." };
+  }
+}
+
 export async function createRoom(formData: Omit<Room, "id">): Promise<{ success: boolean, roomId?: ObjectId, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
@@ -101,7 +137,7 @@ export async function deleteRoom(roomId: string): Promise<{ success: boolean, de
     }
 }
 
-export async function updateRoom(roomId: string, formData: Room): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
+export async function updateRoom(roomId: string, formData: Omit<Room, "status">): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
@@ -122,6 +158,31 @@ export async function updateRoom(roomId: string, formData: Room): Promise<{ succ
         console.error("Database Error:", error)
         return { success: false, error: "Something went wrong" }
     }
+}
+
+export async function getRoomCalendarEvents(roomId: string) {
+  const client = await clientPromise;
+  const db = client.db(process.env.DB_NAME);
+
+  try {
+    
+    const orders = await db.collection("orders")
+      .find({ roomId: new ObjectId(roomId), status: "CONFIRMED" })
+      .toArray();
+
+    const blockedDates = await db.collection("blocked_dates")
+      .find({ roomId: new ObjectId(roomId) })
+      .toArray();
+
+    return { 
+      success: true, 
+      orders: JSON.parse(JSON.stringify(orders)), 
+      blockedDates: JSON.parse(JSON.stringify(blockedDates)) 
+    };
+  } catch (error) {
+    console.error("Error fetching calendar events:", error);
+    return { success: false, error: "Failed to fetch events" };
+  }
 }
 
 export async function addRoomImage(roomId: string, imageUrl: string): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
@@ -151,6 +212,7 @@ export async function removeRoomImage(roomId: string, imageUrl: string): Promise
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
+    
     if (session?.user?.role !== "ADMIN") {
         throw new Error("Only admins can remove images from rooms")
     }
