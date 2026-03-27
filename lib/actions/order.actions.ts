@@ -69,15 +69,20 @@ export async function createOrder(
     }
 }
 
-export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, numberOfPeople: number): Promise<{ success: boolean, rooms?: Room[], error?: string }> {
-  const client = await clientPromise
-  const db = client.db(process.env.DB_NAME)
+export async function getAvailableRooms(
+  checkInDate: Date, 
+  checkOutDate: Date, 
+  numberOfPeople: number
+): Promise<{ success: boolean, rooms?: Room[], error?: string }> {
+  
+  const client = await clientPromise;
+  const db = client.db(process.env.DB_NAME);
   
   try {
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
 
- 
+    // 1. Валидация дат
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
@@ -89,22 +94,36 @@ export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, n
       return { success: false, error: "The check-out date must be later than the check-in date." };
     }
 
-    const overlappingOrders = await db.collection<Order>("orders").find({
-      status: { $in: ["PENDING", "CONFIRMED"] },
+    // 2. Ищем пересечения в реальных ЗАКАЗАХ (Orders)
+    const overlappingOrders = await db.collection("orders").find({
+      status: { $in: ["CONFIRMED"] },
       $and: [
         { checkInDate: { $lt: checkOut } }, 
         { checkOutDate: { $gt: checkIn } }  
       ]
     }).project({ roomId: 1 }).toArray();
 
-    const bookedRoomIds = overlappingOrders.map(order => order.roomId);
+    // 3. Ищем пересечения в РУЧНЫХ БЛОКИРОВКАХ (BlockedDates)
+    const overlappingBlocks = await db.collection("blocked_dates").find({
+      $and: [
+        { startDate: { $lt: checkOut } }, 
+        { endDate: { $gt: checkIn } }  
+      ]
+    }).project({ roomId: 1 }).toArray();
 
+    // 4. Собираем ВСЕ недоступные ID комнат в один массив
+    const unavailableRoomIds = [
+      ...overlappingOrders.map(order => new ObjectId(order.roomId)),
+      ...overlappingBlocks.map(block => new ObjectId(block.roomId))
+    ];
+
+    // 5. Ищем комнаты, которых НЕТ в списке недоступных (БЕЗ фильтра по статусу)
     const rawRooms = await db.collection("rooms").find({
-      _id: { $nin: bookedRoomIds },
-      capacity: { $gte: numberOfPeople },
-      status: "AVAILABLE"
+      _id: { $nin: unavailableRoomIds },
+      capacity: { $gte: numberOfPeople }
     }).toArray();
 
+    // 6. Форматируем результат строго по твоему интерфейсу Room
     const availableRooms: Room[] = rawRooms.map(room => ({
       id: room._id.toString(), 
       roomName: room.roomName,
@@ -112,31 +131,55 @@ export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, n
       price: room.price,
       capacity: room.capacity,
       photoUrl: room.photoUrl,
-      status: room.status,
+      status: "AVAILABLE",
     }));
 
     return { success: true, rooms: JSON.parse(JSON.stringify(availableRooms)) };
 
   } catch (error) {
-    console.error("Database Error:", error)
-    return { success: false, error: "An error occurred while searching for rooms." }
+    console.error("Database Error:", error);
+    return { success: false, error: "An error occurred while searching for rooms." };
   }
 }
 
 export async function getUserOrders(): Promise<{ success: boolean, orders?: Order[], error?: string }> {
-    const client = await clientPromise
-    const db = client.db(process.env.DB_NAME)
-    const session = await auth()
+    const client = await clientPromise;
+    const db = client.db(process.env.DB_NAME);
+    const session = await auth();
+    
     if (!session?.user?.id) {
-        return { success: false, error: "Please log in to the system" }
+        return { success: false, error: "Please log in to the system" };
     }
 
     try {
-        const orders = await db.collection<Order>("orders").find({ userId: new ObjectId(session.user.id) }).toArray()
-        return { success: true, orders: JSON.parse(JSON.stringify(orders)) }
+        let query = {};
+
+        if (session.user.role === "ADMIN") {
+            // Получаем начало сегодняшнего дня
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Админу показываем все заказы, которые еще актуальны 
+            // (дата выезда >= сегодня)
+            query = {
+                checkOutDate: { $gte: today }
+            };
+        } else {
+            // Обычному пользователю показываем ТОЛЬКО его заказы
+            query = {
+                userId: new ObjectId(session.user.id)
+            };
+        }
+
+        const orders = await db.collection<Order>("orders")
+            .find(query)
+            .sort({ checkInDate: 1 })
+            .toArray();
+
+        return { success: true, orders: JSON.parse(JSON.stringify(orders)) };
     } catch (error) {
-        console.error("Database Error:", error)
-        return { success: false, error: "Something went wrong" }
+        console.error("Database Error:", error);
+        return { success: false, error: "Something went wrong" };
     }
 }
 
