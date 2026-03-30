@@ -14,7 +14,6 @@ export default function SearchWidget() {
       setError("Please select both check-in and check-out dates.");
       return;
     }
-
     if (new Date(checkIn) >= new Date(checkOut)) {
       setError("Check-out date must be later than check-in date.");
       return;
