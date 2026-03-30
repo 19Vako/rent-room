@@ -19,6 +19,7 @@ export async function createOrder(
 ): Promise<{ success: boolean, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
+   
     const session = await auth()
     if (!session?.user?.id) {
         return { success: false, error: "Please log in to the system" }
@@ -28,7 +29,7 @@ export async function createOrder(
 
         const overlappingOrder = await db.collection("orders").findOne({
             roomId: new ObjectId(roomId),
-            status: { $in: ["PENDING", "CONFIRMED"] },
+            status: { $in: ['CONFIRMED', 'CANCELLED'] },
             $and: [
                 { checkInDate: { $lt: new Date(checkOutDate) } },
                 { checkOutDate: { $gt: new Date(checkInDate) } }
@@ -50,7 +51,7 @@ export async function createOrder(
             checkInDate: new Date(checkInDate),
             checkOutDate: new Date(checkOutDate),
             orderDate: new Date(),
-            status: "PENDING"
+            status: "CONFIRMED",
         }
 
         const result = await db.collection("orders").insertOne(newOrder)
@@ -79,8 +80,8 @@ export async function getAvailableRooms(
   const db = client.db(process.env.DB_NAME);
   
   try {
-    const checkIn = new Date(checkInDate);
-    const checkOut = new Date(checkOutDate);
+    const checkIn = checkInDate;
+    const checkOut = checkOutDate;
 
     // 1. Валидация дат
     const today = new Date();
@@ -94,7 +95,6 @@ export async function getAvailableRooms(
       return { success: false, error: "The check-out date must be later than the check-in date." };
     }
 
-    // 2. Ищем пересечения в реальных ЗАКАЗАХ (Orders)
     const overlappingOrders = await db.collection("orders").find({
       status: { $in: ["CONFIRMED"] },
       $and: [
@@ -103,7 +103,6 @@ export async function getAvailableRooms(
       ]
     }).project({ roomId: 1 }).toArray();
 
-    // 3. Ищем пересечения в РУЧНЫХ БЛОКИРОВКАХ (BlockedDates)
     const overlappingBlocks = await db.collection("blocked_dates").find({
       $and: [
         { startDate: { $lt: checkOut } }, 
@@ -111,19 +110,16 @@ export async function getAvailableRooms(
       ]
     }).project({ roomId: 1 }).toArray();
 
-    // 4. Собираем ВСЕ недоступные ID комнат в один массив
     const unavailableRoomIds = [
       ...overlappingOrders.map(order => new ObjectId(order.roomId)),
       ...overlappingBlocks.map(block => new ObjectId(block.roomId))
     ];
 
-    // 5. Ищем комнаты, которых НЕТ в списке недоступных (БЕЗ фильтра по статусу)
     const rawRooms = await db.collection("rooms").find({
       _id: { $nin: unavailableRoomIds },
       capacity: { $gte: numberOfPeople }
     }).toArray();
 
-    // 6. Форматируем результат строго по твоему интерфейсу Room
     const availableRooms: Room[] = rawRooms.map(room => ({
       id: room._id.toString(), 
       roomName: room.roomName,
@@ -155,17 +151,15 @@ export async function getUserOrders(): Promise<{ success: boolean, orders?: Orde
         let query = {};
 
         if (session.user.role === "ADMIN") {
-            // Получаем начало сегодняшнего дня
+            
             const today = new Date();
             today.setHours(0, 0, 0, 0);
-
-            // Админу показываем все заказы, которые еще актуальны 
-            // (дата выезда >= сегодня)
+ 
             query = {
                 checkOutDate: { $gte: today }
             };
         } else {
-            // Обычному пользователю показываем ТОЛЬКО его заказы
+          
             query = {
                 userId: new ObjectId(session.user.id)
             };
