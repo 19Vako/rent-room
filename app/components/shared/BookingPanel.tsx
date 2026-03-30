@@ -58,9 +58,7 @@ export default function BookingPanel({ room }: { room: Room }) {
                   Capacity: up to {room.capacity} guests
                 </span>
                 <span className={`px-4 py-2.5 rounded-sm text-sm font-semibold border ${
-                  room.status === "AVAILABLE" ? "bg-green-50 text-green-700 border-green-200" 
-                  : room.status === "BOOKED" ? "bg-red-50 text-red-700 border-red-200"
-                  : "bg-yellow-50 text-yellow-700 border-yellow-200"
+                  room.status === "AVAILABLE" ? "bg-green-50 text-green-700 border-green-200" : "bg-yellow-50 text-yellow-700 border-yellow-200"
                 }`}>
                   Status: {room.status}
                 </span>
