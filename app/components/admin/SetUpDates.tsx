@@ -1,149 +1,98 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { updateRoom } from "@/lib/actions/room.actions";
-import { blockRoomDates } from "@/lib/actions/room.actions";
-import Room from "@/types/Room";
-import { useRoomStore } from "@/store/useRoomStore.ts";  
+import { updateRoom, blockRoomDates, unblockRoomDates } from "@/lib/actions/room.actions";
+import { useSettingData, getTodayFormatted  } from "@/store/useSettingData";  
+import SettingsForm from "./SettingsForm";  
+import ActionModal from "./ActionModal";    
 
-const getTodayFormatted = () => new Date().toISOString().split("T")[0];
+
 
 export default function SetUpDates() {
-  const { selectedRoom, setSelectedRoom } = useRoomStore();
-  
-  const [startDate, setStartDate] = useState<string>(getTodayFormatted());
-  const [endDate, setEndDate] = useState<string>(getTodayFormatted());
-  const [roomPrice, setRoomPrice] = useState<number>(selectedRoom?.price || 0);
-  const [roomStatus, setRoomStatus] = useState<Room["status"]>(selectedRoom?.status || "AVAILABLE");
-  const [isSaving, setIsSaving] = useState(false);
+  const { selectedRoom, setSelectedRoom, setStartDate, setEndDate, startDate, endDate } = useSettingData();
 
+  const [roomPrice, setRoomPrice] = useState<number>(0);
+  const [roomStatus, setRoomStatus] = useState<string>("AVAILABLE");
+  const [isSaving, setIsSaving] = useState(false);
+  const [modal, setModal] = useState<{ isOpen: boolean; type: "success" | "error"; message: string }>({
+    isOpen: false,
+    type: "success",
+    message: "",
+  });
+
+ 
   useEffect(() => {
     if (selectedRoom) {
       setRoomPrice(selectedRoom.price);
-      setRoomStatus(selectedRoom.status || "AVAILABLE");
-      setStartDate(getTodayFormatted());
-      setEndDate(getTodayFormatted());
+      setRoomStatus("AVAILABLE");  
     }
   }, [selectedRoom]);
 
-  if (!selectedRoom) return <div className="p-5 text-black">Loading room data...</div>;
-
+ 
   const handleSave = async () => {
     if (!selectedRoom?.id) return;
     setIsSaving(true);
     
     try {
-
-      const updatedRoomData: Room = {
-        ...selectedRoom,
-        price: roomPrice,
-        status: roomStatus
-      };
+      const updatedRoomData = { ...selectedRoom, price: roomPrice };
+      if ('status' in updatedRoomData) delete (updatedRoomData).status;
+      
       await updateRoom(selectedRoom.id.toString(), updatedRoomData);
+
       if (roomStatus !== "AVAILABLE") {
-        const blockResult = await blockRoomDates(
-          selectedRoom.id.toString(),
-          startDate,
-          endDate,
-          roomStatus
-        );
-        
+        const blockResult = await blockRoomDates(selectedRoom.id.toString(), startDate, endDate, roomStatus);
         if (!blockResult.success) {
+          setModal({ isOpen: true, type: "error", message: blockResult.error || "Error" });
+          setIsSaving(false);
+          return;
+        }
+      } else {
+        const unblockResult = await unblockRoomDates(selectedRoom.id.toString(), startDate, endDate);
+        if (!unblockResult.success) {
+          setModal({ isOpen: true, type: "error", message: unblockResult.error || "Error" });
           setIsSaving(false);
           return;
         }
       }
-      setSelectedRoom(updatedRoomData)
+
+      setSelectedRoom({ ...updatedRoomData });
+      setModal({ isOpen: true, type: "success", message: "Dates and settings updated successfully!" });
 
     } catch (error) {
       console.error(error);
+      setModal({ isOpen: true, type: "error", message: "An unexpected error occurred." });
     } finally {
       setIsSaving(false);
     }
   };
 
+ 
   const cancel = () => {
-    setRoomStatus(selectedRoom.status || "AVAILABLE");
-    setRoomPrice(selectedRoom.price);
+    setRoomStatus("AVAILABLE");
+    if (selectedRoom) setRoomPrice(selectedRoom.price);
     setStartDate(getTodayFormatted());
     setEndDate(getTodayFormatted());
-  } 
+  };
+
+  if (!selectedRoom) return <div className="p-5 text-black">Loading room data...</div>;
 
   return (
-    <div className="w-full lg:w-[380px] shrink-0 border border-gray-200 bg-white shadow-sm mt-12">
- 
-      <div className="p-5 border-b border-gray-200 space-y-4">
-        <h3 className="font-bold text-black">Select Dates</h3>
-        <div className="space-y-3">
-          <div>
-            <label className="block text-sm text-black mb-1">Start date</label>
-            <div className="flex items-center border border-gray-300 rounded px-3 py-2 bg-white focus-within:border-[#0071c2] focus-within:ring-1 focus-within:ring-[#0071c2]">
-              <input 
-                type="date" 
-                value={startDate}
-                onChange={(e) => setStartDate(e.target.value)}
-                className="w-full outline-none text-black bg-transparent cursor-pointer"
-              />
-            </div>
-          </div>
-          <div>
-            <label className="block text-sm text-black mb-1">End date</label>
-            <div className="flex items-center border border-gray-300 rounded px-3 py-2 bg-white focus-within:border-[#0071c2] focus-within:ring-1 focus-within:ring-[#0071c2]">
-              <input 
-                type="date" 
-                value={endDate}
-                min={startDate}
-                onChange={(e) => setEndDate(e.target.value)}
-                className="w-full outline-none text-black bg-transparent cursor-pointer"
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      
-      <div className="p-5">
-        <h4 className="font-medium text-black mb-3">Room Status for selected dates</h4>
+    <>
+      <div className="w-full lg:w-[380px] shrink-0 border border-gray-200 bg-white shadow-sm mt-12 flex flex-col">
         
-        <div className="flex flex-col gap-3 mb-6">
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input 
-              type="radio" 
-              name="status" 
-              value="AVAILABLE"
-              checked={roomStatus === "AVAILABLE"} 
-              onChange={() => setRoomStatus("AVAILABLE")}
-              className="w-4 h-4 text-[#0071c2] focus:ring-[#0071c2]" 
-            />
-            <span className="text-black">Available (Open)</span>
-          </label>
-          <label className="flex items-center gap-2 cursor-pointer">
-            <input 
-              type="radio" 
-              name="status" 
-              value="MAINTENANCE"
-              checked={roomStatus === "MAINTENANCE"} 
-              onChange={() => setRoomStatus("MAINTENANCE")}
-              className="w-4 h-4 text-[#0071c2] focus:ring-[#0071c2]" 
-            />
-            <span className="text-black">Maintenance (Closed)</span>
-          </label>
-        </div>
+        <SettingsForm 
+          startDate={startDate}
+          endDate={endDate}
+          roomStatus={roomStatus}
+          roomPrice={roomPrice}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          onStatusChange={setRoomStatus}
+          onPriceChange={setRoomPrice}
+        />
 
-        <div className="mb-8">
-          <label className="block text-sm text-black mb-1">Price per night</label>
-          <div className="flex items-stretch border border-gray-300 rounded overflow-hidden focus-within:ring-1 focus-within:ring-[#0071c2] focus-within:border-[#0071c2]">
-            <span className="bg-gray-100 px-4 py-2 text-black border-r border-gray-300">UAH</span>
-            <input 
-              type="number" 
-              value={roomPrice}
-              onChange={(e) => setRoomPrice(Number(e.target.value))}
-              className="w-full px-3 py-2 outline-none text-black bg-white"
-            />
-          </div>
-        </div>
-
-        <div className="flex gap-3">
+        {/* Кнопки управления (оставили здесь, так как они завязаны на handleSave) */}
+        <div className="px-5 pb-5 mt-auto flex gap-3">
           <button 
             onClick={cancel}
             className="flex-1 py-2 px-4 border border-gray-300 text-black rounded hover:bg-gray-50 transition-colors font-medium"
@@ -159,6 +108,14 @@ export default function SetUpDates() {
           </button>
         </div>
       </div>
-    </div>
+
+      {/* Вынесенная модалка */}
+      <ActionModal 
+        isOpen={modal.isOpen}
+        type={modal.type}
+        message={modal.message}
+        onClose={() => setModal({ ...modal, isOpen: false })}
+      />
+    </>
   );
 }
