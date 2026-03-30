@@ -3,7 +3,7 @@ import { getAllRooms } from "@/lib/actions/room.actions";
 import AdminRoomSelector from "./AdminRoomSelector";
 
 export default async function AdminHeader() {
- 
+
   const { success, rooms } = await getAllRooms();
 
   return (
