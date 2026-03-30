@@ -8,7 +8,7 @@ import { auth } from "@/auth/auth"
 
 
 
-export async function getAllRooms(): Promise<{ success: boolean, rooms?: Room[], error?: string }> {
+export async function getAllRooms(): Promise<{ success: boolean, rooms?: Omit<Room[], "status">, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
 
@@ -46,7 +46,8 @@ export async function getRoomById(roomId: string): Promise<{ success: boolean, r
         const { _id, ...rest } = room;
         const formattedRoom = {
             id: _id.toString(),
-            ...rest
+            ...rest,
+            status: "AVAILABLE"
         } as Room;
 
         return { success: true, room: formattedRoom };
@@ -60,22 +61,46 @@ export async function blockRoomDates(
   roomId: string,
   startDate: string,
   endDate: string,
-  reason: Room["status"]
+  reason: string  
 ): Promise<{ success: boolean; error?: string }> {
   
   const client = await clientPromise;
   const db = client.db(process.env.DB_NAME);
 
   try {
+    // Приводим даты к началу и концу дня для точного сравнения
     const start = new Date(`${startDate}T00:00:00.000Z`);
     const end = new Date(`${endDate}T23:59:59.999Z`);
 
-    // Простая валидация дат
     if (end < start) {
       return { success: false, error: "End date cannot be before start date." };
     }
 
-    // Записываем блокировку в новую коллекцию
+    // ПРОВЕРКА 1: Нет ли уже ручной блокировки на эти даты?
+    // Логика пересечения: (Начало новой <= Конец старой) И (Конец новой >= Начало старой)
+    const existingBlock = await db.collection("blocked_dates").findOne({
+      roomId: new ObjectId(roomId),
+      startDate: { $lte: end },
+      endDate: { $gte: start }
+    });
+
+    if (existingBlock) {
+      return { success: false, error: "Some of these dates are already blocked." };
+    }
+
+    // ПРОВЕРКА 2: Нет ли реальной брони на эти даты? (чтобы не закрыть номер с гостем)
+    const existingOrder = await db.collection("orders").findOne({
+      roomId: new ObjectId(roomId),
+      status: "CONFIRMED",
+      checkInDate: { $lte: end },
+      checkOutDate: { $gte: start }
+    });
+
+    if (existingOrder) {
+      return { success: false, error: "Cannot block dates: there is an active booking." };
+    }
+
+    // Если все чисто - блокируем
     await db.collection("blocked_dates").insertOne({
       roomId: new ObjectId(roomId),
       startDate: start,
@@ -89,6 +114,33 @@ export async function blockRoomDates(
   } catch (error) {
     console.error("Error blocking dates:", error);
     return { success: false, error: "Something went wrong while blocking dates." };
+  }
+}
+
+export async function unblockRoomDates(
+  roomId: string,
+  startDate: string,
+  endDate: string
+): Promise<{ success: boolean; error?: string }> {
+  
+  const client = await clientPromise;
+  const db = client.db(process.env.DB_NAME);
+
+  try {
+    const start = new Date(`${startDate}T00:00:00.000Z`);
+    const end = new Date(`${endDate}T23:59:59.999Z`);
+
+    await db.collection("blocked_dates").deleteMany({
+      roomId: new ObjectId(roomId),
+      startDate: { $lte: end },
+      endDate: { $gte: start }
+    });
+
+    revalidatePath("/admin");
+    return { success: true };
+  } catch (error) {
+    console.error("Error unblocking dates:", error);
+    return { success: false, error: "Something went wrong while unblocking dates." };
   }
 }
 
