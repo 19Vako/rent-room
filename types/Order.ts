@@ -7,5 +7,5 @@ export default interface Order {
     checkInDate: Date,
     checkOutDate: Date,
     orderDate: Date,
-    status: "PENDING" | "CONFIRMED" | "CANCELLED",
+    status: "CONFIRMED" | "CANCELLED",
 }
