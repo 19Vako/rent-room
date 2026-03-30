@@ -3,19 +3,15 @@
 import { useState, useRef, useEffect } from "react";
 import Room from "@/types/Room";  
 import { ObjectId } from "mongodb";
-import { useRoomStore } from "@/store/useRoomStore.ts";
+import { useSettingData} from "@/store/useSettingData";
 
-interface AdminRoomSelectorProps {
-  rooms: Room[];
-}
 
-export default function AdminRoomSelector({ rooms }: AdminRoomSelectorProps) {
+export default function AdminRoomSelector({ rooms }: { rooms: Room[] }) {
   const [isOpen, setIsOpen] = useState(false);
-  const {selectedRoom, setSelectedRoom} = useRoomStore()
+  const {selectedRoom, setSelectedRoom} = useSettingData()
   
   const dropdownRef = useRef<HTMLDivElement>(null);
 
- 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -26,6 +22,7 @@ export default function AdminRoomSelector({ rooms }: AdminRoomSelectorProps) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
+  
   useEffect(() => {
     if (!selectedRoom && rooms.length > 0) {
       setSelectedRoom(rooms[0]);
@@ -43,24 +40,23 @@ export default function AdminRoomSelector({ rooms }: AdminRoomSelectorProps) {
 
   return (
     <div className="relative" ref={dropdownRef}>
-      {/* --- КНОПКА В ХЕДЕРЕ (ТРИГГЕР) --- */}
+ 
       <div className="flex items-center gap-3">
         <button 
           onClick={() => setIsOpen(!isOpen)}
           className="flex items-center gap-2 text-white hover:text-gray-200 transition-colors"
         >
           <span className="font-bold text-lg">{selectedRoom.roomName}</span>
-          {/* Рамка с ID как на макете */}
+ 
           <span className="border border-white text-sm px-1.5 py-0.5 rounded-sm bg-transparent tracking-wide">
             {getShortId(selectedRoom.id)}
           </span>
-          {/* Иконка стрелочки вниз */}
+ 
           <svg className={`w-4 h-4 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
           </svg>
         </button>
         
-        {/* Иконка глаза (Просмотр на сайте) */}
         <button className="text-white hover:text-gray-200 ml-1" title="View property on site">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -69,7 +65,6 @@ export default function AdminRoomSelector({ rooms }: AdminRoomSelectorProps) {
         </button>
       </div>
 
-      {/* --- ВЫПАДАЮЩЕЕ МЕНЮ (КАК НА МАКЕТЕ) --- */}
       {isOpen && (
         <div className="absolute top-full left-0 mt-4 w-[340px] bg-white shadow-[0_4px_20px_-3px_rgba(0,0,0,0.15)] z-50 rounded-sm overflow-hidden text-[#1a1a1a] border border-gray-200">
           
