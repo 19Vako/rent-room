@@ -132,7 +132,7 @@ export default function DashboardCalendar() {
   };
 
   return (
-    <div className="flex flex-wrap items-start gap-6 w-full max-w-[1600px] mx-auto p-4 bg-white min-h-screen">
+    <div className="flex flex-wrap items-start gap-6 w-full max-w-[1600px] mx-auto p-4">
       
       <div className="flex-1 w-full overflow-x-auto">
         
