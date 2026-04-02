@@ -78,7 +78,7 @@ export default function SetUpDates() {
 
   return (
     <>
-      <div className="w-full lg:w-[380px] shrink-0 border border-gray-200 bg-white shadow-sm mt-12 flex flex-col">
+      <div className="w-full lg:w-[380px] shrink-0 border border-gray-200 bg-white shadow-sm mt-23 flex flex-col">
         
         <SettingsForm 
           startDate={startDate}
@@ -91,7 +91,7 @@ export default function SetUpDates() {
           onPriceChange={setRoomPrice}
         />
 
-        {/* Кнопки управления (оставили здесь, так как они завязаны на handleSave) */}
+        
         <div className="px-5 pb-5 mt-auto flex gap-3">
           <button 
             onClick={cancel}
