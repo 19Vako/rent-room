@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getAllRooms } from "@/lib/actions/room.actions";  
 import AdminRoomSelector from "./AdminRoomSelector";
+import OrdersModalButton from "./OrdersModalButton";
 
 export default async function AdminHeader() {
 
@@ -13,12 +14,16 @@ export default async function AdminHeader() {
         <div className="flex items-center gap-6">
  
           <Link href="/admin" className="text-2xl font-bold text-white tracking-tight">
-             RentRoom
+            RentRoom
           </Link>
 
           {success && rooms && rooms.length > 0 && (
             <AdminRoomSelector rooms={rooms} />
           )}
+   
+          <div className="flex items-center">
+            <OrdersModalButton />
+          </div>
         </div>
 
     
