@@ -57,18 +57,22 @@ export default function AdminRoomSelector({ rooms }: { rooms: Room[] }) {
           </svg>
         </button>
         
+
+
         <button className="text-white hover:text-gray-200 ml-1" title="View property on site">
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
           </svg>
         </button>
+
+
       </div>
 
       {isOpen && (
         <div className="absolute top-full left-0 mt-4 w-[340px] bg-white shadow-[0_4px_20px_-3px_rgba(0,0,0,0.15)] z-50 rounded-sm overflow-hidden text-[#1a1a1a] border border-gray-200">
           
-          {/* Список комнат/объектов */}
+ 
           <div className="max-h-[60vh] overflow-y-auto">
             {rooms.map((room) => (
               <div 
@@ -80,7 +84,7 @@ export default function AdminRoomSelector({ rooms }: { rooms: Room[] }) {
                 }}
                 className={`flex items-center gap-4 p-4 hover:bg-gray-100 cursor-pointer transition-colors ${selectedRoom.id === room.id ? 'bg-gray-50' : ''}`}
               >
-                {/* Круглая картинка объекта */}
+ 
                 <div className="w-11 h-11 rounded-full overflow-hidden bg-gray-200 shrink-0 border border-gray-100 shadow-sm">
                   {room.photoUrl && room.photoUrl[0] ? (
                     <img src={room.photoUrl[0]} alt={room.roomName} className="w-full h-full object-cover" />
@@ -90,7 +94,7 @@ export default function AdminRoomSelector({ rooms }: { rooms: Room[] }) {
                     </div>
                   )}
                 </div>
-                {/* Текст: Название и ID */}
+                
                 <div>
                   <p className="font-bold text-[15px] text-[#1a1a1a]">{room.roomName}</p>
                   <span className="inline-block border border-gray-400 text-gray-600 text-[13px] px-1.5 py-[1px] rounded-sm mt-0.5">
