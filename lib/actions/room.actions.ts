@@ -5,6 +5,7 @@ import Room from "@/types/Room"
 import { revalidatePath } from "next/cache"
 import { ObjectId } from "mongodb"
 import { auth } from "@/auth/auth"
+import BlockedDate from "@/types/BlockedDate"
 
 
 
@@ -68,7 +69,7 @@ export async function blockRoomDates(
   const db = client.db(process.env.DB_NAME);
 
   try {
-    // Приводим даты к началу и концу дня для точного сравнения
+    
     const start = new Date(`${startDate}T00:00:00.000Z`);
     const end = new Date(`${endDate}T23:59:59.999Z`);
 
@@ -76,8 +77,7 @@ export async function blockRoomDates(
       return { success: false, error: "End date cannot be before start date." };
     }
 
-    // ПРОВЕРКА 1: Нет ли уже ручной блокировки на эти даты?
-    // Логика пересечения: (Начало новой <= Конец старой) И (Конец новой >= Начало старой)
+    
     const existingBlock = await db.collection("blocked_dates").findOne({
       roomId: new ObjectId(roomId),
       startDate: { $lte: end },
@@ -88,7 +88,7 @@ export async function blockRoomDates(
       return { success: false, error: "Some of these dates are already blocked." };
     }
 
-    // ПРОВЕРКА 2: Нет ли реальной брони на эти даты? (чтобы не закрыть номер с гостем)
+ 
     const existingOrder = await db.collection("orders").findOne({
       roomId: new ObjectId(roomId),
       status: "CONFIRMED",
@@ -100,7 +100,7 @@ export async function blockRoomDates(
       return { success: false, error: "Cannot block dates: there is an active booking." };
     }
 
-    // Если все чисто - блокируем
+ 
     await db.collection("blocked_dates").insertOne({
       roomId: new ObjectId(roomId),
       startDate: start,
@@ -117,32 +117,118 @@ export async function blockRoomDates(
   }
 }
 
+
 export async function unblockRoomDates(
   roomId: string,
-  startDate: string,
-  endDate: string
+  startDate: string,  
+  endDate: string    
 ): Promise<{ success: boolean; error?: string }> {
   
   const client = await clientPromise;
   const db = client.db(process.env.DB_NAME);
+  const session = await auth()
+
+  if (session?.user?.role !== "ADMIN") {
+    throw new Error("Only admins can unblock dates")
+  }
 
   try {
-    const start = new Date(`${startDate}T00:00:00.000Z`);
-    const end = new Date(`${endDate}T23:59:59.999Z`);
+    
+    const uStart = new Date(`${startDate}T00:00:00.000Z`);
+    const uEnd = new Date(`${endDate}T23:59:59.999Z`);
+    
+     
+    const uStartMs = new Date(`${startDate}T00:00:00.000Z`).getTime();
+    const uEndMs = new Date(`${endDate}T00:00:00.000Z`).getTime(); 
+    const DAY_MS = 24 * 60 * 60 * 1000; 
 
-    await db.collection("blocked_dates").deleteMany({
+    
+    const overlappingBlocks = await db.collection<Omit<BlockedDate, "id"> & { _id: ObjectId }>("blocked_dates").find({
       roomId: new ObjectId(roomId),
-      startDate: { $lte: end },
-      endDate: { $gte: start }
-    });
+      startDate: { $lte: uEnd },
+      endDate: { $gte: uStart }
+    }).toArray();
+
+    if (overlappingBlocks.length === 0) {
+      return { success: true };
+    }
+
+    const blocksToDelete: ObjectId[] = [];
+    const blocksToInsert: BlockedDate[] = [];
+
+ 
+    for (const block of overlappingBlocks) {
+      blocksToDelete.push(block._id);  
+
+      
+      const bStartMs = new Date(new Date(block.startDate).toISOString().split('T')[0] + 'T00:00:00.000Z').getTime();
+      const bEndMs = new Date(new Date(block.endDate).toISOString().split('T')[0] + 'T00:00:00.000Z').getTime();
+
+      if (uStartMs <= bStartMs && uEndMs >= bEndMs) {
+        continue; 
+      }
+      
+      
+      else if (uStartMs <= bStartMs && uEndMs < bEndMs) {
+        blocksToInsert.push({
+          roomId: block.roomId,
+          reason: block.reason,
+          startDate: new Date(uEndMs + DAY_MS), 
+          endDate: block.endDate,
+          createdAt: new Date()
+        });
+      }
+      
+      
+      else if (uStartMs > bStartMs && uEndMs >= bEndMs) {
+        blocksToInsert.push({
+          roomId: block.roomId,
+          reason: block.reason,
+          startDate: block.startDate,  
+          endDate: new Date(uStartMs - 1), 
+          createdAt: new Date()
+        });
+      }
+      
+    
+      else if (uStartMs > bStartMs && uEndMs < bEndMs) {
+ 
+        blocksToInsert.push({
+          roomId: block.roomId,
+          reason: block.reason,
+          startDate: block.startDate,
+          endDate: new Date(uStartMs - 1)
+        });
+       
+        blocksToInsert.push({
+          roomId: block.roomId,
+          reason: block.reason,
+          startDate: new Date(uEndMs + DAY_MS),
+          endDate: block.endDate
+        });
+      }
+    }
+
+ 
+    if (blocksToDelete.length > 0) {
+      await db.collection("blocked_dates").deleteMany({
+        _id: { $in: blocksToDelete }
+      });
+    }
+
+    if (blocksToInsert.length > 0) {
+      await db.collection("blocked_dates").insertMany(blocksToInsert);
+    }
 
     revalidatePath("/admin");
     return { success: true };
+
   } catch (error) {
     console.error("Error unblocking dates:", error);
     return { success: false, error: "Something went wrong while unblocking dates." };
   }
 }
+
 
 export async function createRoom(formData: Omit<Room, "id">): Promise<{ success: boolean, roomId?: ObjectId, error?: string }> {
     const client = await clientPromise
