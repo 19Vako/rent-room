@@ -6,15 +6,14 @@ import { cancelOrder } from "@/lib/actions/order.actions"
 
 const statusConfig = {
   CONFIRMED: { label: "Confirmed", colors: "bg-green-100 text-green-800" },
-  PENDING: { label: "Pending", colors: "bg-yellow-100 text-yellow-800" },
   CANCELLED: { label: "Cancelled", colors: "bg-red-100 text-red-800" },
 };
 
-export default function OrderCard({ order }: { order: Order & { _id?: string } }) {
+export default function OrderCard({ order }: { order: Order }) {
  
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
-  const currentStatus = statusConfig[order.status] || statusConfig.PENDING;
+  const currentStatus = statusConfig[order.status]
 
  
   const handleCancelClick = (e: React.MouseEvent) => {
@@ -24,7 +23,9 @@ export default function OrderCard({ order }: { order: Order & { _id?: string } }
 
  
   const confirmCancellation = async () => { 
-    await cancelOrder(order._id!)
+    await cancelOrder(order.id!)
+    setIsCancelModalOpen(false);
+    setIsModalOpen(false);
   };
 
   return (
@@ -112,7 +113,7 @@ export default function OrderCard({ order }: { order: Order & { _id?: string } }
               
               <div className="flex justify-between items-center">
                 <span className="text-black">Order ID</span>
-                <span className="font-mono text-sm text-black">{order._id?.toString()}</span>
+                <span className="font-mono text-sm text-black">{order.id}</span>
               </div>
 
               <div className="flex justify-between items-center">
@@ -148,7 +149,7 @@ export default function OrderCard({ order }: { order: Order & { _id?: string } }
       {isCancelModalOpen && (
         <div 
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4"
-          // Закрываем модалку при клике на темный фон, останавливаем всплытие чтобы не открылась модалка деталей
+         
           onClick={(e) => { e.stopPropagation(); setIsCancelModalOpen(false); }}
         >
           <div 
