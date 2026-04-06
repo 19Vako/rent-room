@@ -1,11 +1,13 @@
 "use server" 
-
+import { UTApi } from "uploadthing/server";
 import clientPromise from "@/lib/mongodb"
 import Room from "@/types/Room"
 import { revalidatePath } from "next/cache"
 import { ObjectId } from "mongodb"
 import { auth } from "@/auth/auth"
 import BlockedDate from "@/types/BlockedDate"
+
+const utapi = new UTApi();
 
 
 
@@ -116,7 +118,6 @@ export async function blockRoomDates(
     return { success: false, error: "Something went wrong while blocking dates." };
   }
 }
-
 
 export async function unblockRoomDates(
   roomId: string,
@@ -229,25 +230,44 @@ export async function unblockRoomDates(
   }
 }
 
+export async function createRoom(formData: Omit<Room, "id" | "status">): Promise<{ success: boolean, roomId?: string, error?: string }> {
+  const client = await clientPromise;
+  const db = client.db(process.env.DB_NAME);
+  const session = await auth();
 
-export async function createRoom(formData: Omit<Room, "id">): Promise<{ success: boolean, roomId?: ObjectId, error?: string }> {
-    const client = await clientPromise
-    const db = client.db(process.env.DB_NAME)
-    const session = await auth()
+  // 1. Проверка прав доступа
   if (session?.user?.role !== "ADMIN") {
-    throw new Error("Only admins can create rooms")
+    return { success: false, error: "Only admins can create rooms" };
   }
 
   try {
-    const newRoom = await db.collection("rooms").insertOne({
-      ...formData,
-    })
+    const trimmedName = formData.roomName.trim();
 
-    revalidatePath("/") 
-    return { success: true, roomId: newRoom.insertedId }
+    const existingRoom = await db.collection("rooms").findOne({ 
+      roomName: { $regex: new RegExp(`^${trimmedName}$`, "i") } 
+    });
+
+    if (existingRoom) {
+      return { success: false, error: "A room with this name already exists" };
+    }
+ 
+    const roomToInsert = {
+      roomName: trimmedName,
+      type: formData.type,
+      price: Number(formData.price),
+      capacity: Number(formData.capacity),
+      photoUrl: [],
+    };
+
+    const newRoom = await db.collection("rooms").insertOne(roomToInsert);
+
+    revalidatePath("/"); 
+    revalidatePath("/admin"); 
+    
+    return { success: true, roomId: newRoom.insertedId.toString() };
   } catch (error) {
-    console.error("Database Error:", error)
-    return { success: false, error: "Something went wrong" }
+    console.error("Database Error:", error);
+    return { success: false, error: "Failed to create room. Check data format." };
   }
 }
 
@@ -264,7 +284,7 @@ export async function deleteRoom(roomId: string): Promise<{ success: boolean, de
             _id: new ObjectId(roomId)    
         })
 
-        revalidatePath("/")
+        revalidatePath("/admin")
 
         return { success: true, deletedCount: deletedRoom.deletedCount }
     } catch (error) {
@@ -275,7 +295,7 @@ export async function deleteRoom(roomId: string): Promise<{ success: boolean, de
     }
 }
 
-export async function updateRoom(roomId: string, formData: Omit<Room, "status">): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
+export async function updateRoom(roomId: string, formData: Pick<Room, "roomName" | "type" | "capacity" | "price">): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
@@ -289,7 +309,7 @@ export async function updateRoom(roomId: string, formData: Omit<Room, "status">)
             { $set: { ...formData } }
         )
 
-        revalidatePath("/")
+        revalidatePath("/admin")
 
         return { success: true, updatedCount: updatedRoom.modifiedCount }
     } catch (error) {
@@ -334,7 +354,7 @@ export async function addRoomImage(roomId: string, imageUrl: string): Promise<{ 
     try {
         const updatedRoom = await db.collection<Room>("rooms").updateOne(
             { _id: new ObjectId(roomId) },
-            { $push: { images: imageUrl } }
+            { $push: { photoUrl: imageUrl } }
         )
 
         revalidatePath("/")
@@ -356,12 +376,21 @@ export async function removeRoomImage(roomId: string, imageUrl: string): Promise
     }
 
     try {
+
+      const fileKey = imageUrl.split('/').pop();
+        
+        if (fileKey) {
+            await utapi.deleteFiles(fileKey);
+        } else {
+            console.warn("Could not extract file key from URL:", imageUrl);
+        }
+
         const updatedRoom = await db.collection<Room>("rooms").updateOne(
             { _id: new ObjectId(roomId) },
-            { $pull: { images: imageUrl } }
+            { $pull: { photoUrl: imageUrl } }
         )
 
-        revalidatePath("/")
+        revalidatePath("/admin")
 
         return { success: true, updatedCount: updatedRoom.modifiedCount }
     } catch (error) {
