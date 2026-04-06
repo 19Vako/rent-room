@@ -1,37 +1,54 @@
 import SearchWidget from "./components/shared/SearchWidget";
 import Header from "./components/shared/Header";
 import RoomList from "./components/shared/RoomList"; 
+import PriceFilter from "./components/shared/PriceFilter";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-gray-50">
+     
+    <main 
+      className="min-h-screen relative bg-cover bg-center bg-fixed"
+      style={{ 
+        
+       
+        backgroundImage: "url('/photo-1554995207-c18c203602cb.avif')" 
+      }}
+    >
       
-      <Header />
+      <div className="absolute inset-0 bg-white/75 backdrop-blur-sm z-0 pointer-events-none"></div>
 
+      <div className="relative z-10 flex flex-col min-h-screen">
+        <Header />
+        
+        <section className="relative pt-24 pb-32 px-4 flex flex-col items-center justify-center bg-[#003580]" >
+          <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col gap-6">
+            <div>
+              <h1 className="text-white text-4xl md:text-5xl font-bold mb-2">
+                Find your perfect stay
+              </h1>
+              <p className="text-white text-xl md:text-2xl">
+                Rent apartments or rooms in just a few clicks.
+              </p>
+            </div>
 
-      <section 
-        className="relative pt-24 pb-32 px-4 flex flex-col items-center justify-center bg-[#003580]" 
-      >
-        <div className="relative z-10 w-full max-w-6xl mx-auto flex flex-col gap-6">
-          <div>
-            <h1 className="text-white text-4xl md:text-5xl font-bold mb-2">
-              Find your perfect stay
-            </h1>
-            <p className="text-white text-xl md:text-2xl">
-              Rent apartments or rooms in just a few clicks.
-            </p>
+            <div className="mt-4">
+              <SearchWidget />
+            </div>
           </div>
-
-          <div className="mt-4">
-            <SearchWidget />
+        </section>
+        
+        <section className="w-full max-w-7xl mx-auto flex flex-wrap items-start gap-8 px-4 py-12 pb-24">
+          <aside className="w-full lg:w-[320px] shrink-0">
+            <div className="lg:sticky lg:top-28 space-y-6">
+              <PriceFilter />
+            </div>
+          </aside>
+   
+          <div className="flex-1 w-full min-w-0">
+            <RoomList />
           </div>
-        </div>
-      </section>
-
-      
-      <section className="px-4 py-12 pb-24">
-        <RoomList />
-      </section>
+        </section>
+      </div>
 
     </main>
   );

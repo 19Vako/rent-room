@@ -4,11 +4,10 @@ import { getAvailableRooms } from "@/lib/actions/order.actions";
 import { useSearchRoomsStore } from "@/store/useSearchRoomsStore"; 
 
 export default function SearchWidget() {
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
+  const { setRooms, setIsLoading, setError, setNumberOfPeople, setSearchDates, searchDates, isLoading } = useSearchRoomsStore();
+  const [checkIn, setCheckIn] = useState(searchDates?.checkIn || "");
+  const [checkOut, setCheckOut] = useState(searchDates?.checkOut || "");
   const [guests, setGuests] = useState(2);
-
-  const { setRooms, setIsLoading, setError, setSearchDates, isLoading } = useSearchRoomsStore();
 
   const handleSearch = async () => {
     if (!checkIn || !checkOut) {
@@ -25,6 +24,7 @@ export default function SearchWidget() {
     setError("");
     setRooms([]);
     setSearchDates({ checkIn, checkOut });
+    setNumberOfPeople(guests); 
 
     try {
       const result = await getAvailableRooms(new Date(checkIn), new Date(checkOut), guests);
@@ -50,7 +50,7 @@ export default function SearchWidget() {
           <div className="flex flex-1 items-center px-4 py-2 min-w-[150px]">
             <input 
               type="date" 
-              className="w-full py-2   outline-none bg-transparent"
+              className="w-full py-2 outline-none bg-transparent"
               value={checkIn}
               onChange={(e) => setCheckIn(e.target.value)}
             />
