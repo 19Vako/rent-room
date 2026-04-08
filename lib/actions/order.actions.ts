@@ -3,7 +3,7 @@
 import clientPromise from "@/lib/mongodb"
 import { ObjectId } from "mongodb"
 import User from "@/types/User"
-import { auth } from "@/auth"
+import { auth } from "@/auth/auth"
 import { revalidatePath } from "next/cache"
 import Order from "@/types/Order"
 import Room from "@/types/Room"

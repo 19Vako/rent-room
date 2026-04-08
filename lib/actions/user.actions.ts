@@ -1,7 +1,7 @@
 "use server"
 
 import clientPromise from "@/lib/mongodb"
-import { signOut } from "@/auth";
+import { signOut } from "@/auth/auth";
 import User from "@/types/User";
 import bcrypt from "bcryptjs"
 
@@ -27,6 +27,8 @@ export async function registerUser(name: string, email: string, password: string
       email,
       password: hashedPassword, 
       role: isAdmin ? "ADMIN" : "GUEST",
+      resetToken: undefined,
+      resetTokenExpiry: undefined,
       orders: [],
     };
 

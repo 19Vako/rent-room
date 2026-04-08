@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { auth } from "@/auth"; 
+import { auth } from "@/auth/auth"; 
 import LogoutButton from "../ui/LogoutButton";
 import ProfileButton from "../ui/ProfileButton";
 

@@ -1,6 +1,6 @@
 import Header from "../components/shared/Header";
 import { getUserOrders } from "@/lib/actions/order.actions";
-import { auth } from "@/auth";
+import { auth } from "@/auth/auth";
 import OrderList from "../components/shared/OrderList";
 import BackButton from "../components/shared/BackButton";
  

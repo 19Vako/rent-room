@@ -5,5 +5,7 @@ export default interface User {
     password:string,
     email:string,
     role: "GUEST" | "ADMIN",
+    resetToken?: string,
+    resetTokenExpiry?: number,
     orders: ObjectId[],
 }

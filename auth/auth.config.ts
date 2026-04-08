@@ -27,7 +27,6 @@ export const authConfig = {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
       
-      
       const isAdminRoute = nextUrl.pathname.startsWith('/admin');
       if (isAdminRoute) {
         if (!isLoggedIn) return false;  
@@ -37,8 +36,9 @@ export const authConfig = {
         return true; 
       }
 
- 
-      const isAuthRoute = nextUrl.pathname === '/login' || nextUrl.pathname === '/register';
+      const publicAuthRoutes = ['/login', '/forgot-password', '/forgot-password/reset-password'];
+
+      const isAuthRoute = publicAuthRoutes.includes(nextUrl.pathname);
       if (isAuthRoute) {
         if (isLoggedIn) {
         
