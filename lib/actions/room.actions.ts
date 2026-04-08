@@ -4,7 +4,7 @@ import clientPromise from "@/lib/mongodb"
 import Room from "@/types/Room"
 import { revalidatePath } from "next/cache"
 import { ObjectId } from "mongodb"
-import { auth } from "@/auth"
+import { auth } from "@/auth/auth"
 
 
 
