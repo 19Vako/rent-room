@@ -10,13 +10,12 @@ export default function RoomListCard({ room }: { room: Room }) {
 
     return (
     <Link href={href} className="flex flex-wrap justify-end border border-gray-300 rounded-lg p-4 gap-4 md:gap-6 bg-white shadow-sm hover:shadow-md transition-shadow w-full">
-      
-      <div className="relative w-full md:w-[260px] h-[200px] flex-shrink-0 rounded-lg overflow-hidden">
-        <Image
+       
+      <div className="relative w-full bg-gray-200 md:w-[260px] h-full flex-shrink-0 flex item-center justify-center rounded-lg overflow-hidden">
+        <img
           src={imageUrl}
           alt={room.roomName}
-          fill
-          className="object-cover"
+          className="object-cover w-full"
         />
       </div>
 

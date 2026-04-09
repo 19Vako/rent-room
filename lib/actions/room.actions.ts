@@ -235,7 +235,6 @@ export async function createRoom(formData: Omit<Room, "id" | "status">): Promise
   const db = client.db(process.env.DB_NAME);
   const session = await auth();
 
-  // 1. Проверка прав доступа
   if (session?.user?.role !== "ADMIN") {
     return { success: false, error: "Only admins can create rooms" };
   }
@@ -303,10 +302,17 @@ export async function updateRoom(roomId: string, formData: Pick<Room, "roomName"
         throw new Error("Only admins can update rooms")
     }
 
+    const updateData = {
+        roomName: formData.roomName,
+        type: formData.type,
+        capacity: Number(formData.capacity),
+        price: Number(formData.price)         
+    };
+
     try {
         const updatedRoom = await db.collection("rooms").updateOne(
             { _id: new ObjectId(roomId) },
-            { $set: { ...formData } }
+            { $set: { ...updateData } }
         )
 
         revalidatePath("/admin")
