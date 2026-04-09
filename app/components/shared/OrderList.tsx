@@ -3,12 +3,12 @@ import OrderCard from "./OrderCard";
 
 
 export default function OrderList({ orders }: {
-  orders: (Order & { _id?: string })[];
+  orders: Order[];
 }) {
   return (
     <div className="space-y-5">
       {orders.map((order) => (
-        <OrderCard key={order._id} order={order} />
+        <OrderCard key={order.id} order={order} />
       ))}
     </div>
   );

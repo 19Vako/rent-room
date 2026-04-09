@@ -19,16 +19,32 @@ export async function createOrder(
 ): Promise<{ success: boolean, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
+   
     const session = await auth()
     if (!session?.user?.id) {
         return { success: false, error: "Please log in to the system" }
     }
 
     try {
+        const overlappingBlock = await db.collection("blocked_dates").findOne({
+            roomId: new ObjectId(roomId),
+            $and: [
+                { startDate: { $lt: new Date(checkOutDate) } },
+                { endDate: { $gt: new Date(checkInDate) } }
+            ]
+        });
 
+        if (overlappingBlock) {
+            return { 
+                success: false, 
+                error: "This room is closed for maintenance on the selected dates" 
+            };
+        }
+
+        
         const overlappingOrder = await db.collection("orders").findOne({
             roomId: new ObjectId(roomId),
-            status: { $in: ["PENDING", "CONFIRMED"] },
+            status: 'CONFIRMED',
             $and: [
                 { checkInDate: { $lt: new Date(checkOutDate) } },
                 { checkOutDate: { $gt: new Date(checkInDate) } }
@@ -38,10 +54,11 @@ export async function createOrder(
         if (overlappingOrder) {
             return { 
                 success: false, 
-                error: "this room is already booked for the selected dates" 
+                error: "This room is already booked for the selected dates" 
             }
         }
 
+ 
         const newOrder = {
             userId: new ObjectId(session.user.id),
             numberOfPeople: numberOfPeople,
@@ -50,7 +67,7 @@ export async function createOrder(
             checkInDate: new Date(checkInDate),
             checkOutDate: new Date(checkOutDate),
             orderDate: new Date(),
-            status: "PENDING"
+            status: "CONFIRMED",
         }
 
         const result = await db.collection("orders").insertOne(newOrder)
@@ -61,7 +78,7 @@ export async function createOrder(
         )
 
         revalidatePath("/")  
-        return { success: true}
+        return { success: true }
 
     } catch (error) {
         console.error("Database Error:", error)
@@ -69,13 +86,18 @@ export async function createOrder(
     }
 }
 
-export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, numberOfPeople: number): Promise<{ success: boolean, rooms?: Room[], error?: string }> {
-  const client = await clientPromise
-  const db = client.db(process.env.DB_NAME)
+export async function getAvailableRooms(
+  checkInDate: Date, 
+  checkOutDate: Date, 
+  numberOfPeople: number
+): Promise<{ success: boolean, rooms?: Room[], error?: string }> {
+  
+  const client = await clientPromise;
+  const db = client.db(process.env.DB_NAME);
   
   try {
-    const checkIn = new Date(checkInDate);
-    const checkOut = new Date(checkOutDate);
+    const checkIn = checkInDate;
+    const checkOut = checkOutDate;
 
  
     const today = new Date();
@@ -89,20 +111,29 @@ export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, n
       return { success: false, error: "The check-out date must be later than the check-in date." };
     }
 
-    const overlappingOrders = await db.collection<Order>("orders").find({
-      status: { $in: ["PENDING", "CONFIRMED"] },
+    const overlappingOrders = await db.collection("orders").find({
+      status: { $in: ["CONFIRMED"] },
       $and: [
         { checkInDate: { $lt: checkOut } }, 
         { checkOutDate: { $gt: checkIn } }  
       ]
     }).project({ roomId: 1 }).toArray();
 
-    const bookedRoomIds = overlappingOrders.map(order => order.roomId);
+    const overlappingBlocks = await db.collection("blocked_dates").find({
+      $and: [
+        { startDate: { $lt: checkOut } }, 
+        { endDate: { $gt: checkIn } }  
+      ]
+    }).project({ roomId: 1 }).toArray();
+
+    const unavailableRoomIds = [
+      ...overlappingOrders.map(order => new ObjectId(order.roomId)),
+      ...overlappingBlocks.map(block => new ObjectId(block.roomId))
+    ];
 
     const rawRooms = await db.collection("rooms").find({
-      _id: { $nin: bookedRoomIds },
-      capacity: { $gte: numberOfPeople },
-      status: "AVAILABLE"
+      _id: { $nin: unavailableRoomIds },
+      capacity: { $gte: numberOfPeople }
     }).toArray();
 
     const availableRooms: Room[] = rawRooms.map(room => ({
@@ -112,31 +143,99 @@ export async function getAvailableRooms(checkInDate: Date, checkOutDate: Date, n
       price: room.price,
       capacity: room.capacity,
       photoUrl: room.photoUrl,
-      status: room.status,
+      status: "AVAILABLE",
     }));
 
     return { success: true, rooms: JSON.parse(JSON.stringify(availableRooms)) };
 
   } catch (error) {
-    console.error("Database Error:", error)
-    return { success: false, error: "An error occurred while searching for rooms." }
+    console.error("Database Error:", error);
+    return { success: false, error: "An error occurred while searching for rooms." };
   }
 }
 
 export async function getUserOrders(): Promise<{ success: boolean, orders?: Order[], error?: string }> {
-    const client = await clientPromise
-    const db = client.db(process.env.DB_NAME)
-    const session = await auth()
+    const client = await clientPromise;
+    const db = client.db(process.env.DB_NAME);
+    const session = await auth();
+    
     if (!session?.user?.id) {
-        return { success: false, error: "Please log in to the system" }
+        return { success: false, error: "Please log in to the system" };
     }
 
     try {
-        const orders = await db.collection<Order>("orders").find({ userId: new ObjectId(session.user.id) }).toArray()
-        return { success: true, orders: JSON.parse(JSON.stringify(orders)) }
+        let query = {};
+
+        if (session.user.role === "ADMIN") {
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+ 
+            query = {
+                checkOutDate: { $gte: today }
+            };
+        } else {
+          
+            query = {
+                userId: new ObjectId(session.user.id)
+            };
+        }
+
+        
+
+        const orders = await db.collection<Order>("orders")
+            .find(query)
+            .sort({ checkInDate: 1 })
+            .toArray();
+
+        const formattedOrders = orders.reverse().map((order) => {
+            const { _id, ...rest } = order;
+            return {
+                id: _id.toString(),
+                ...rest
+            };
+        });
+
+        return { success: true, orders: JSON.parse(JSON.stringify(formattedOrders)) };
     } catch (error) {
-        console.error("Database Error:", error)
-        return { success: false, error: "Something went wrong" }
+        console.error("Database Error:", error);
+        return { success: false, error: "Something went wrong" };
+    }
+}
+
+export async function getRoomOrders(roomId: string): Promise<{ success: boolean, orders?: Order[], error?: string }> {
+    const client = await clientPromise;
+    const db = client.db(process.env.DB_NAME);
+    const session = await auth();
+    
+    if (!session?.user?.id) {
+        return { success: false, error: "Please log in to the system" };
+    }
+
+    if (session.user.role !== "ADMIN") {
+        return { success: false, error: "You do not have permission to view this data" };
+    }
+
+    try {
+
+        const orders = await db.collection("orders")
+            .find({ roomId: new ObjectId(roomId) })
+            .sort({ checkInDate: 1 })
+            .toArray();
+
+       
+        const formattedOrders = orders.reverse().map((order) => {
+            const { _id, ...rest } = order;
+            return {
+                id: _id.toString(),
+                ...rest
+            };
+        });
+
+        return { success: true, orders: JSON.parse(JSON.stringify(formattedOrders)) };
+    } catch (error) {
+        console.error("Database Error:", error);
+        return { success: false, error: "Something went wrong" };
     }
 }
 

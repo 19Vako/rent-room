@@ -1,5 +1,7 @@
 import { ObjectId } from "mongodb";
+
 export default interface Order {
+    id?: string;
     userId: ObjectId | string,
     numberOfPeople: number,
     roomId: ObjectId | string,
@@ -7,5 +9,5 @@ export default interface Order {
     checkInDate: Date,
     checkOutDate: Date,
     orderDate: Date,
-    status: "PENDING" | "CONFIRMED" | "CANCELLED",
+    status: "CONFIRMED" | "CANCELLED",
 }
