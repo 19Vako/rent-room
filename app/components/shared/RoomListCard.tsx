@@ -4,18 +4,18 @@ import Room from "@/types/Room";
 
 export default function RoomListCard({ room }: { room: Room }) {
 
-    const imageUrl = room.photoUrl && room.photoUrl.length > 0 ? room.photoUrl[0] : "/199685538-appareil-photo-et-icône-d-image-ou-d-image-symbole-rempli-de-galerie-d-album-et-de-photographie.jpg"; 
+  const imageUrl = room.photoUrl && room.photoUrl.length > 0 ? room.photoUrl[0] : "/199685538-appareil-photo-et-icône-d-image-ou-d-image-symbole-rempli-de-galerie-d-album-et-de-photographie.jpg"; 
+  const href = room.id ? `/room/${room.id}` : "#";
 
-    const href = room.id ? `/room/${room.id}` : "#";
-
-    return (
+  return (
     <Link href={href} className="flex flex-wrap justify-end border border-gray-300 rounded-lg p-4 gap-4 md:gap-6 bg-white shadow-sm hover:shadow-md transition-shadow w-full">
        
-      <div className="relative w-full bg-gray-200 md:w-[260px] h-full flex-shrink-0 flex item-center justify-center rounded-lg overflow-hidden">
-        <img
-          src={imageUrl}
-          alt={room.roomName}
-          className="object-cover w-full"
+      <div className="relative w-full bg-gray-200 md:w-[260px] h-[180px] flex-shrink-0 flex items-center justify-center rounded-lg overflow-hidden snap-center">
+        <Image 
+          src={imageUrl} 
+          alt="Room photo" 
+          fill 
+          className="object-cover" 
         />
       </div>
 
