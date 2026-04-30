@@ -29,13 +29,16 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
       <header className="bg-[#003b95] py-4 px-6 md:px-8">
-        <Link href="/" className="text-white text-2xl font-bold tracking-tight">Booking.com</Link>
+        <Link href="/" className="text-white text-2xl font-bold tracking-tight">
+          Booking.com
+        </Link>
       </header>
 
       <main className="max-w-[400px] mx-auto mt-12 md:mt-20 px-4 pb-12">
         <h2 className="text-[24px] font-bold mb-2">Reset your password</h2>
         <p className="text-[15px] text-gray-600 mb-8">
-          Enter your email address and we will send you a link to reset your password.
+          Enter your email address and we will send you a link to reset your
+          password.
         </p>
 
         {message && (
@@ -52,9 +55,11 @@ export default function ForgotPasswordPage() {
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <label className="block text-[14px] font-bold mb-1">Email address</label>
-            <input 
-              type="email" 
+            <label className="block text-[14px] font-bold mb-1">
+              Email address
+            </label>
+            <input
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
@@ -62,8 +67,8 @@ export default function ForgotPasswordPage() {
             />
           </div>
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
             className="w-full py-3 bg-[#006ce4] hover:bg-[#0055b3] text-white font-bold text-[15px] rounded-sm transition-colors disabled:opacity-50 mt-2"
           >
@@ -72,7 +77,10 @@ export default function ForgotPasswordPage() {
         </form>
 
         <div className="mt-6 text-center">
-          <Link href="/login" className="text-[#006ce4] text-[14px] font-bold hover:underline">
+          <Link
+            href="/login"
+            className="text-[#006ce4] text-[14px] font-bold hover:underline"
+          >
             Back to sign in
           </Link>
         </div>

@@ -1,10 +1,7 @@
 import Order from "@/types/Order";
-import OrderCard from "./OrderCard";  
+import OrderCard from "./OrderCard";
 
-
-export default function OrderList({ orders }: {
-  orders: Order[];
-}) {
+export default function OrderList({ orders }: { orders: Order[] }) {
   return (
     <div className="space-y-5">
       {orders.map((order) => (

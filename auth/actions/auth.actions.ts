@@ -5,29 +5,24 @@ import crypto from "crypto";
 import bcrypt from "bcryptjs";
 import nodemailer from "nodemailer";
 
- 
 export async function sendPasswordResetEmail(email: string) {
   try {
     const client = await clientPromise;
     const db = client.db(process.env.DB_NAME);
 
- 
     const user = await db.collection("users").findOne({ email });
-    
+
     if (!user) {
-      return { success: true }; 
+      return { success: true };
     }
 
     const resetToken = crypto.randomBytes(32).toString("hex");
     const resetTokenExpiry = Date.now() + 3600000; // + 1 hour
 
- 
-    await db.collection("users").updateOne(
-      { email },
-      { $set: { resetToken, resetTokenExpiry } }
-    );
+    await db
+      .collection("users")
+      .updateOne({ email }, { $set: { resetToken, resetTokenExpiry } });
 
- 
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -52,7 +47,6 @@ export async function sendPasswordResetEmail(email: string) {
 
     await transporter.sendMail(mailOptions);
     return { success: true };
-
   } catch (error) {
     console.error("Error sending reset email:", error);
     return { success: false, error: "Failed to send reset email." };
@@ -64,26 +58,23 @@ export async function resetPassword(token: string, newPassword: string) {
     const client = await clientPromise;
     const db = client.db(process.env.DB_NAME);
 
-
     const user = await db.collection("users").findOne({
       resetToken: token,
-      resetTokenExpiry: { $gt: Date.now() }
+      resetTokenExpiry: { $gt: Date.now() },
     });
 
     if (!user) {
       return { success: false, error: "Invalid or expired reset token." };
     }
 
-
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
- 
     await db.collection("users").updateOne(
       { _id: user._id },
-      { 
+      {
         $set: { password: hashedPassword },
-        $unset: { resetToken: "", resetTokenExpiry: "" } 
-      }
+        $unset: { resetToken: "", resetTokenExpiry: "" },
+      },
     );
 
     return { success: true };

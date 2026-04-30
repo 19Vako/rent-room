@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import Room from '@/types/Room';
+import { create } from "zustand";
+import Room from "@/types/Room";
 
 export const getTodayFormatted = () => new Date().toISOString().split("T")[0];
 
@@ -13,10 +13,10 @@ interface SettingData {
 }
 
 export const useSettingData = create<SettingData>()((set) => ({
-    startDate: getTodayFormatted(),
-    setStartDate: (date:string) => set({ startDate: date }),
-    endDate: getTodayFormatted(),
-    setEndDate: (date:string) => set({ endDate: date }),
-    selectedRoom: null,
-    setSelectedRoom: (room) => set({ selectedRoom: room }),
-}))
+  startDate: getTodayFormatted(),
+  setStartDate: (date: string) => set({ startDate: date }),
+  endDate: getTodayFormatted(),
+  setEndDate: (date: string) => set({ endDate: date }),
+  selectedRoom: null,
+  setSelectedRoom: (room) => set({ selectedRoom: room }),
+}));

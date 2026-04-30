@@ -2,9 +2,7 @@
 
 import { useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { resetPassword } from "@/auth/actions/auth.actions"; 
-
-
+import { resetPassword } from "@/auth/actions/auth.actions";
 
 export default function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -26,12 +24,11 @@ export default function ResetPasswordForm() {
     setError("");
 
     try {
-   
       const result = await resetPassword(token, newPassword);
 
       if (result.success) {
         setSuccess(true);
-        
+
         setTimeout(() => {
           router.push("/login");
         }, 3000);
@@ -55,13 +52,20 @@ export default function ResetPasswordForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4 max-w-sm mx-auto mt-10">
+    <form
+      onSubmit={handleSubmit}
+      className="flex flex-col gap-4 max-w-sm mx-auto mt-10"
+    >
       <h2 className="text-2xl text-black font-bold mb-4">Set New Password</h2>
-      
-      {error && <div className="bg-red-100 text-red-600 p-2 rounded">{error}</div>}
+
+      {error && (
+        <div className="bg-red-100 text-red-600 p-2 rounded">{error}</div>
+      )}
 
       <div>
-        <label className="block text-black text-sm font-medium mb-1">New Password</label>
+        <label className="block text-black text-sm font-medium mb-1">
+          New Password
+        </label>
         <input
           type="password"
           value={newPassword}
@@ -73,8 +77,8 @@ export default function ResetPasswordForm() {
         />
       </div>
 
-      <button 
-        type="submit" 
+      <button
+        type="submit"
         disabled={isLoading}
         className="bg-blue-600 text-white p-2 rounded hover:bg-blue-700 disabled:opacity-50"
       >

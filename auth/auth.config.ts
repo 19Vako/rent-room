@@ -4,18 +4,17 @@ export const authConfig = {
   pages: {
     signIn: "/login",
   },
-  session: { strategy: "jwt" },  
-  providers: [], 
+  session: { strategy: "jwt" },
+  providers: [],
   callbacks: {
-   
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id;
-        token.role = user.role || "GUEST";  
+        token.role = user.role || "GUEST";
       }
       return token;
     },
- 
+
     async session({ session, token }) {
       if (session.user) {
         session.user.id = token.id as string;
@@ -23,30 +22,33 @@ export const authConfig = {
       }
       return session;
     },
-   
+
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
-      
-      const isAdminRoute = nextUrl.pathname.startsWith('/admin');
+
+      const isAdminRoute = nextUrl.pathname.startsWith("/admin");
       if (isAdminRoute) {
-        if (!isLoggedIn) return false;  
+        if (!isLoggedIn) return false;
         if (auth.user?.role !== "ADMIN") {
-          return Response.redirect(new URL('/', nextUrl));  
+          return Response.redirect(new URL("/", nextUrl));
         }
-        return true; 
+        return true;
       }
 
-      const publicAuthRoutes = ['/login', '/forgot-password', '/forgot-password/reset-password'];
+      const publicAuthRoutes = [
+        "/login",
+        "/forgot-password",
+        "/forgot-password/reset-password",
+      ];
 
       const isAuthRoute = publicAuthRoutes.includes(nextUrl.pathname);
       if (isAuthRoute) {
         if (isLoggedIn) {
-        
           if (auth.user?.role === "ADMIN") {
-            return Response.redirect(new URL('/admin', nextUrl));
+            return Response.redirect(new URL("/admin", nextUrl));
           }
- 
-          return Response.redirect(new URL('/', nextUrl)); 
+
+          return Response.redirect(new URL("/", nextUrl));
         }
         return true;
       }
@@ -56,19 +58,16 @@ export const authConfig = {
       }
 
       return true;
-
     },
   },
-  
 } satisfies NextAuthConfig;
 
- 
 declare module "next-auth" {
   interface Session {
     user: {
       id?: string;
       role?: "ADMIN" | "GUEST";
-    } & import("next-auth").DefaultSession["user"]
+    } & import("next-auth").DefaultSession["user"];
   }
   interface User {
     role?: "ADMIN" | "GUEST";

@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import BackButton from "@/app/components/shared/BackButton";
 import Room from "@/types/Room";
-import { createRoom } from "@/lib/actions/room.actions"; 
-
+import { createRoom } from "@/lib/actions/room.actions";
 
 export default function CreateRoomPage() {
   const router = useRouter();
@@ -16,15 +15,17 @@ export default function CreateRoomPage() {
   const [formData, setFormData] = useState({
     roomName: "",
     type: "STANDARD" as Room["type"],
-    price: "", 
+    price: "",
     capacity: "",
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e:React.SyntheticEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
@@ -35,11 +36,10 @@ export default function CreateRoomPage() {
       type: formData.type,
       price: Number(formData.price),
       capacity: Number(formData.capacity),
-      photoUrl: [],  
+      photoUrl: [],
     };
-    
+
     const result = await createRoom(roomDataToSubmit);
-    
 
     if (result.success && result.roomId) {
       setSuccessMsg("Room created successfully! Redirecting to setup...");
@@ -47,7 +47,7 @@ export default function CreateRoomPage() {
     } else {
       setError(result.error || "An unknown error occurred.");
     }
-    
+
     setIsLoading(false);
   };
 
@@ -60,30 +60,39 @@ export default function CreateRoomPage() {
       <div className="max-w-[800px] mx-auto mt-8 px-4">
         <div className="mb-6">
           <h1 className="text-[28px] font-bold text-[#1a1a1a]">Add New Room</h1>
-          <p className="text-[15px] text-gray-600 mt-1">Fill in the details to make the room available for booking.</p>
+          <p className="text-[15px] text-gray-600 mt-1">
+            Fill in the details to make the room available for booking.
+          </p>
         </div>
 
- 
         {error && (
           <div className="bg-[#ffebe8] border border-[#cc0000] text-[#cc0000] px-4 py-3 rounded-sm mb-6 text-[14px]">
-            <span className="font-bold">Error: </span>{error}
-          </div>
-        )}
-        
- 
-        {successMsg && (
-          <div className="bg-[#e8f6e8] border border-[#008009] text-[#008009] px-4 py-3 rounded-sm mb-6 text-[14px]">
-            <span className="font-bold">Success! </span>{successMsg}
+            <span className="font-bold">Error: </span>
+            {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 shadow-sm rounded-md p-6 md:p-8">
-          <h2 className="text-[18px] font-bold text-[#1a1a1a] mb-6">Basic Information</h2>
-          
+        {successMsg && (
+          <div className="bg-[#e8f6e8] border border-[#008009] text-[#008009] px-4 py-3 rounded-sm mb-6 text-[14px]">
+            <span className="font-bold">Success! </span>
+            {successMsg}
+          </div>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white border border-gray-200 shadow-sm rounded-md p-6 md:p-8"
+        >
+          <h2 className="text-[18px] font-bold text-[#1a1a1a] mb-6">
+            Basic Information
+          </h2>
+
           <div className="space-y-6">
             {/* Room Name */}
             <div>
-              <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">Room Name <span className="text-red-500">*</span></label>
+              <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">
+                Room Name <span className="text-red-500">*</span>
+              </label>
               <input
                 type="text"
                 name="roomName"
@@ -97,7 +106,9 @@ export default function CreateRoomPage() {
 
             {/* Room Type */}
             <div>
-              <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">Room Type <span className="text-red-500">*</span></label>
+              <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">
+                Room Type <span className="text-red-500">*</span>
+              </label>
               <select
                 name="type"
                 value={formData.type}
@@ -113,7 +124,9 @@ export default function CreateRoomPage() {
             {/* Price and Capacity */}
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-1">
-                <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">Price per night (UAH) <span className="text-red-500">*</span></label>
+                <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">
+                  Price per night (UAH) <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
                   name="price"
@@ -126,7 +139,9 @@ export default function CreateRoomPage() {
                 />
               </div>
               <div className="flex-1">
-                <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">Capacity (guests) <span className="text-red-500">*</span></label>
+                <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">
+                  Capacity (guests) <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
                   name="capacity"
@@ -145,7 +160,7 @@ export default function CreateRoomPage() {
           <div className="flex justify-end gap-4 mt-8 pt-6 border-t border-gray-200">
             <button
               type="button"
-              onClick={() => router.push('/admin')}
+              onClick={() => router.push("/admin")}
               className="px-8 py-3 bg-white border border-[#006CE4] text-[#006CE4] text-[15px] font-bold hover:bg-[#ebf3ff] transition-colors rounded-sm"
             >
               Cancel
