@@ -20,6 +20,7 @@ export default async function RoomPage({
         <BackButton className="mb-4" />
         <div className="mb-6">
           <h1 className="text-4xl font-bold text-gray-900">{room!.roomName}</h1>
+          <p className="text-gray-600 text-lg mt-2">{room!.description}</p>
         </div>
         <div className="flex flex-wrap lg:flex-row gap-8 w-full">
           <div className="flex-1 flex flex-col gap-2 w-full">

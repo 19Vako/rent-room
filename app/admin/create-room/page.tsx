@@ -17,6 +17,7 @@ export default function CreateRoomPage() {
     type: "STANDARD" as Room["type"],
     price: "",
     capacity: "",
+    description: "",
   });
 
   const handleChange = (
@@ -36,7 +37,8 @@ export default function CreateRoomPage() {
       type: formData.type,
       price: Number(formData.price),
       capacity: Number(formData.capacity),
-      photoUrl: [],
+      description: formData.description,
+      photoUrl: [],  
     };
 
     const result = await createRoom(roomDataToSubmit);
@@ -153,6 +155,20 @@ export default function CreateRoomPage() {
                   placeholder="1"
                 />
               </div>
+            </div>
+
+            {/* Description */}
+            <div>
+              <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">Description <span className="text-red-500">*</span></label>
+              <textarea
+                name="description"
+                required
+                value={formData.description}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                className="w-full text-black border border-gray-400 rounded-sm p-3 text-[14px] focus:ring-2 focus:ring-[#006CE4] outline-none resize-none"
+                placeholder="Describe your room, amenities, and what makes it special..."
+                rows={5}
+              />
             </div>
           </div>
 

@@ -258,6 +258,7 @@ export async function createRoom(
       type: formData.type,
       price: Number(formData.price),
       capacity: Number(formData.capacity),
+      description: formData.description,
       photoUrl: [],
     };
 
@@ -300,23 +301,21 @@ export async function deleteRoom(
   }
 }
 
-export async function updateRoom(
-  roomId: string,
-  formData: Pick<Room, "roomName" | "type" | "capacity" | "price">,
-): Promise<{ success: boolean; updatedCount?: number; error?: string }> {
-  const client = await clientPromise;
-  const db = client.db(process.env.DB_NAME);
-  const session = await auth();
-  if (session?.user?.role !== "ADMIN") {
-    throw new Error("Only admins can update rooms");
-  }
+export async function updateRoom(roomId: string, formData: Pick<Room, "roomName" | "type" | "capacity" | "price" | "description">): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
+    const client = await clientPromise
+    const db = client.db(process.env.DB_NAME)
+    const session = await auth()
+    if (session?.user?.role !== "ADMIN") {
+        throw new Error("Only admins can update rooms")
+    }
 
-  const updateData = {
-    roomName: formData.roomName,
-    type: formData.type,
-    capacity: Number(formData.capacity),
-    price: Number(formData.price),
-  };
+    const updateData = {
+        roomName: formData.roomName,
+        type: formData.type,
+        capacity: Number(formData.capacity),
+        price: Number(formData.price),
+        description: formData.description
+    };
 
   try {
     const updatedRoom = await db

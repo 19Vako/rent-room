@@ -14,8 +14,8 @@ export default function ImageSlider({ photos }: ImageSliderProps) {
   const handleScroll = () => {
     if (sliderRef.current) {
       const { scrollLeft, clientWidth } = sliderRef.current;
-      const index = Math.round(scrollLeft / clientWidth);
-      setCurrentSlide(index);
+      const exactSlide = scrollLeft / clientWidth;
+      setCurrentSlide(exactSlide);
     }
   };
 
@@ -99,7 +99,7 @@ export default function ImageSlider({ photos }: ImageSliderProps) {
 
         {photos.length > 1 && (
           <div className="absolute bottom-4 right-4 bg-black/60 text-white text-xs font-bold px-3 py-1.5 rounded-full z-10">
-            {currentSlide + 1} / {photos.length}
+            {Math.floor(currentSlide) + 1} / {photos.length}
           </div>
         )}
       </div>

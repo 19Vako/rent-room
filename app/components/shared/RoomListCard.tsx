@@ -30,6 +30,9 @@ export default function RoomListCard({ room }: { room: Room }) {
           <p className="text-lg text-gray-600 mt-1">
             Capacity: {room.capacity}
           </p>
+          <p className="text-gray-600 text-sm mt-2 line-clamp-2">
+            {room.description}
+          </p>
         </div>
       </div>
 

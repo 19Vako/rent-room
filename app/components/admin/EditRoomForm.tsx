@@ -16,20 +16,19 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Стейты для удаления
+ 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  // Текущее состояние формы
-  const [formData, setFormData] = useState<
-    Pick<Room, "roomName" | "type" | "capacity" | "price">
-  >({
+ 
+  const [formData, setFormData] = useState<Pick<Room, "roomName" | "type" | "capacity" | "price" | "description">>({
     roomName: initialRoom.roomName,
     type: initialRoom.type,
     capacity: initialRoom.capacity,
     price: initialRoom.price,
-  });
-
+    description: initialRoom.description,
+  }); 
+ 
   const [initialData, setInitialData] = useState(formData);
   const [hasChanges, setHasChanges] = useState(false);
 
@@ -38,8 +37,9 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
       formData.roomName !== initialData.roomName ||
       formData.type !== initialData.type ||
       Number(formData.capacity) !== Number(initialData.capacity) ||
-      Number(formData.price) !== Number(initialData.price);
-
+      Number(formData.price) !== Number(initialData.price) ||
+      formData.description !== initialData.description;
+    
     setHasChanges(isChanged);
   }, [formData, initialData]);
 
@@ -76,7 +76,6 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
       const result = await deleteRoom(initialRoom.id as string);
 
       if (result.success) {
-        // Успешно удалили - уходим в админку
         router.push("/admin");
       } else {
         setMessage({
@@ -173,6 +172,22 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
                       onChange={handleChange}
                       className="w-full border border-gray-300 p-2.5 rounded text-[#0071c2] font-bold text-lg focus:border-[#0071c2] focus:ring-1 focus:ring-[#0071c2] outline-none transition-colors"
                     />
+                  </div>
+
+                  {/* DESCRIPTION */}
+                  <div>
+                    <label className="block text-[14px] font-bold text-gray-900 mb-1">
+                      Description
+                    </label>
+                    <textarea 
+                      name="description" 
+                      value={formData.description} 
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full border border-gray-300 p-2.5 rounded text-black text-[14px] focus:border-[#0071c2] focus:ring-1 focus:ring-[#0071c2] outline-none transition-colors resize-none"
+                      rows={4}
+                      placeholder="Describe your room amenities and features..."
+                    />
+                    <p className="text-[12px] text-gray-500 mt-1">Tell guests what makes your room special.</p>
                   </div>
 
                   {/* MESSAGE BOX */}

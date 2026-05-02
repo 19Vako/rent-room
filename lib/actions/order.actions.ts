@@ -148,7 +148,8 @@ export async function getAvailableRooms(
     const availableRooms: Room[] = rawRooms.map((room) => ({
       id: room._id.toString(),
       roomName: room.roomName,
-      type: room.type,
+      type: room.type,  
+      description: room.description,
       price: room.price,
       capacity: room.capacity,
       photoUrl: room.photoUrl,
