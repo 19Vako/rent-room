@@ -18,11 +18,12 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
   const [isDeleting, setIsDeleting] = useState(false);
 
   // Текущее состояние формы
-  const [formData, setFormData] = useState<Pick<Room, "roomName" | "type" | "capacity" | "price">>({
+  const [formData, setFormData] = useState<Pick<Room, "roomName" | "type" | "capacity" | "price" | "description">>({
     roomName: initialRoom.roomName,
     type: initialRoom.type,
     capacity: initialRoom.capacity,
     price: initialRoom.price,
+    description: initialRoom.description,
   }); 
  
   const [initialData, setInitialData] = useState(formData);
@@ -33,7 +34,8 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
       formData.roomName !== initialData.roomName ||
       formData.type !== initialData.type ||
       Number(formData.capacity) !== Number(initialData.capacity) ||
-      Number(formData.price) !== Number(initialData.price);
+      Number(formData.price) !== Number(initialData.price) ||
+      formData.description !== initialData.description;
     
     setHasChanges(isChanged);
   }, [formData, initialData]);
@@ -156,6 +158,22 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
                       onChange={handleChange} 
                       className="w-full border border-gray-300 p-2.5 rounded text-[#0071c2] font-bold text-lg focus:border-[#0071c2] focus:ring-1 focus:ring-[#0071c2] outline-none transition-colors" 
                     />
+                  </div>
+
+                  {/* DESCRIPTION */}
+                  <div>
+                    <label className="block text-[14px] font-bold text-gray-900 mb-1">
+                      Description
+                    </label>
+                    <textarea 
+                      name="description" 
+                      value={formData.description} 
+                      onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                      className="w-full border border-gray-300 p-2.5 rounded text-black text-[14px] focus:border-[#0071c2] focus:ring-1 focus:ring-[#0071c2] outline-none transition-colors resize-none"
+                      rows={4}
+                      placeholder="Describe your room amenities and features..."
+                    />
+                    <p className="text-[12px] text-gray-500 mt-1">Tell guests what makes your room special.</p>
                   </div>
 
                   {/* MESSAGE BOX */}
