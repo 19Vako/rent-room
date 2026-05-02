@@ -1,15 +1,14 @@
-import { create } from 'zustand';
-import Room from '@/types/Room';
-
+import { create } from "zustand";
+import Room from "@/types/Room";
 
 interface SearchRoomsState {
   rooms: Room[];
   isLoading: boolean;
   error: string;
-  searchDates: { checkIn: string; checkOut: string } | null; 
+  searchDates: { checkIn: string; checkOut: string } | null;
   numberOfPeople: number;
   priceRange: { min: number; max: number } | null;
-  
+
   setRooms: (rooms: Room[]) => void;
   setIsLoading: (isLoading: boolean) => void;
   setError: (error: string) => void;
@@ -17,7 +16,6 @@ interface SearchRoomsState {
   setNumberOfPeople: (number: number) => void;
   setPriceRange: (range: { min: number; max: number } | null) => void;
 }
-
 
 export const useSearchRoomsStore = create<SearchRoomsState>((set) => ({
   rooms: [],
@@ -27,8 +25,7 @@ export const useSearchRoomsStore = create<SearchRoomsState>((set) => ({
   numberOfPeople: 1,
 
   priceRange: { min: 0, max: 10000 },
-  
-  
+
   setRooms: (rooms) => set({ rooms }),
   setIsLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),

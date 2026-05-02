@@ -3,8 +3,8 @@ import { useSearchRoomsStore } from "@/store/useSearchRoomsStore";
 import RoomListCard from "./RoomListCard";
 
 export default function RoomList() {
-
-  const { rooms, priceRange, isLoading, error, searchDates } = useSearchRoomsStore();
+  const { rooms, priceRange, isLoading, error, searchDates } =
+    useSearchRoomsStore();
 
   if (isLoading) {
     return (
@@ -25,7 +25,8 @@ export default function RoomList() {
   if (searchDates && rooms.length === 0) {
     return (
       <p className="text-gray-500 text-center py-10 w-full max-w-6xl mx-auto">
-        There are no available rooms for these dates. Please try changing the check-in dates.
+        There are no available rooms for these dates. Please try changing the
+        check-in dates.
       </p>
     );
   }
@@ -35,17 +36,15 @@ export default function RoomList() {
     return room.price >= priceRange.min && room.price <= priceRange.max;
   });
 
-
-
   if (rooms.length > 0) {
     return (
       <div className="w-full max-w-5xl">
-        <h2 className="text-2xl font-bold text-gray-800 mb-6">Available Options:</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-6">
+          Available Options:
+        </h2>
         <div className="flex flex-col gap-5 w-full">
           {filteredRooms.map((room) => (
-
             <RoomListCard key={room.id?.toString()} room={room} />
-
           ))}
         </div>
       </div>

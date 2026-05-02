@@ -1,14 +1,17 @@
-import Header from "../../components/shared/Header";  
+import Header from "../../components/shared/Header";
 import BookingPanel from "@/app/components/shared/BookingPanel";
 import { getRoomById } from "@/lib/actions/room.actions";
 import ImageSlider from "@/app/components/shared/ImageSlider";
 import BackButton from "@/app/components/shared/BackButton";
 
-export default async function RoomPage({ params }: { params: Promise<{ id: string }>}) {
-
+export default async function RoomPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const resolvedParams = await params;
-  const { room } = await getRoomById(resolvedParams.id)
-  const photos = room!.photoUrl
+  const { room } = await getRoomById(resolvedParams.id);
+  const photos = room!.photoUrl;
 
   return (
     <div className="min-h-screen bg-white pb-20">
@@ -20,13 +23,11 @@ export default async function RoomPage({ params }: { params: Promise<{ id: strin
           <p className="text-gray-600 text-lg mt-2">{room!.description}</p>
         </div>
         <div className="flex flex-wrap lg:flex-row gap-8 w-full">
-      
           <div className="flex-1 flex flex-col gap-2 w-full">
-            <ImageSlider photos={photos} />            
+            <ImageSlider photos={photos} />
           </div>
           <BookingPanel room={room!} />
         </div>
-
       </main>
     </div>
   );

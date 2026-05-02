@@ -1,4 +1,4 @@
-import { logout } from "@/lib/actions/user.actions"; 
+import { logout } from "@/lib/actions/user.actions";
 
 export default function LogoutButton() {
   return (
@@ -7,7 +7,6 @@ export default function LogoutButton() {
         type="submit"
         className="group flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 bg-white border border-gray-200 rounded-lg hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-all duration-200 w-full sm:w-auto shadow-sm hover:shadow"
       >
- 
         <svg
           xmlns="http://www.w3.org/2000/svg"
           width="18"
