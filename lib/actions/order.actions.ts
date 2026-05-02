@@ -140,6 +140,7 @@ export async function getAvailableRooms(
       id: room._id.toString(), 
       roomName: room.roomName,
       type: room.type,  
+      description: room.description,
       price: room.price,
       capacity: room.capacity,
       photoUrl: room.photoUrl,

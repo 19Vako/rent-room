@@ -255,6 +255,7 @@ export async function createRoom(formData: Omit<Room, "id" | "status">): Promise
       type: formData.type,
       price: Number(formData.price),
       capacity: Number(formData.capacity),
+      description: formData.description,
       photoUrl: [],
     };
 
@@ -294,7 +295,7 @@ export async function deleteRoom(roomId: string): Promise<{ success: boolean, de
     }
 }
 
-export async function updateRoom(roomId: string, formData: Pick<Room, "roomName" | "type" | "capacity" | "price">): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
+export async function updateRoom(roomId: string, formData: Pick<Room, "roomName" | "type" | "capacity" | "price" | "description">): Promise<{ success: boolean, updatedCount?: number, error?: string }> {
     const client = await clientPromise
     const db = client.db(process.env.DB_NAME)
     const session = await auth()
@@ -306,7 +307,8 @@ export async function updateRoom(roomId: string, formData: Pick<Room, "roomName"
         roomName: formData.roomName,
         type: formData.type,
         capacity: Number(formData.capacity),
-        price: Number(formData.price)         
+        price: Number(formData.price),
+        description: formData.description
     };
 
     try {
