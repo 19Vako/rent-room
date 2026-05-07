@@ -1,10 +1,9 @@
-"use client"
+"use client";
 
-
-import { useState } from "react"
+import { useState } from "react";
 import { signIn, getSession } from "next-auth/react";
-import Link from "next/link"
-import { useRouter } from "next/navigation"
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -13,7 +12,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-   
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -35,7 +33,7 @@ export default function LoginPage() {
         } else {
           router.push("/");
         }
-        router.refresh(); 
+        router.refresh();
       }
     } catch {
       setError("Something went wrong");
@@ -45,83 +43,98 @@ export default function LoginPage() {
   };
 
   return (
- 
-    <div 
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('/bg-hotel.jpg')" }}
-    >
-      <div className="absolute inset-0 bg-black/30"></div>
+    <div className="min-h-screen bg-white font-sans text-[#1a1a1a]">
+      <header className="bg-[#003b95] py-4 px-6 md:px-8">
+        <Link href="/" className="text-white text-2xl font-bold tracking-tight">
+          RentRoom
+        </Link>
+      </header>
 
-      <div className="relative z-10 w-full max-w-md p-8 bg-black/40 backdrop-blur-md border border-white/20 rounded-lg shadow-2xl text-white">
-        
-        <h2 className="text-3xl font-light text-center mb-8">Sign In</h2>
+      <main className="max-w-[400px] mx-auto mt-12 md:mt-20 px-4 pb-12">
+        <h2 className="text-[24px] font-bold mb-2">Sign in to your account</h2>
+        <p className="text-[15px] text-gray-600 mb-8">
+          Manage your property, check reservations, and more.
+        </p>
 
-        <div className="flex flex-col gap-3 mb-6">
-          <button 
-            onClick={() => signIn("google")}
-            className="flex items-center justify-center w-full py-2.5 bg-white text-black rounded font-medium hover:bg-gray-100 transition-colors"
-          >
-            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
-              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-            </svg>
-            Continue with Google
-          </button>
-        </div>
-
- 
-        <div className="flex items-center my-6">
-          <div className="flex-grow border-t border-white/30"></div>
-          <span className="px-3 text-white/70 text-sm">or Email</span>
-          <div className="flex-grow border-t border-white/30"></div>
-        </div>
-
- 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <label className="block text-sm mb-1 text-white/90">E-mail</label>
-            <input 
-              type="email" 
-              placeholder="ex: some@gmail.com"
+            <label className="block text-[14px] font-bold mb-1">
+              Email address
+            </label>
+            <input
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2.5 bg-white text-black outline-none rounded"
+              className="w-full px-3 py-2.5 bg-white border border-gray-400 text-black outline-none rounded-sm focus:border-[#006ce4] focus:ring-1 focus:ring-[#006ce4] transition-colors"
             />
           </div>
 
           <div>
-            <label className="block text-sm mb-1 text-white/90">Password</label>
-            <input 
-              type="password" 
-              placeholder="Enter password"
+            {/* ДОБАВЛЕНО: Flex-контейнер для лейбла и ссылки */}
+            <div className="flex justify-between items-center mb-1">
+              <label className="block text-[14px] font-bold">Password</label>
+              <Link
+                href="/forgot-password"
+                className="text-[14px] text-[#006ce4] hover:underline font-medium"
+              >
+                Forgot your password?
+              </Link>
+            </div>
+            <input
+              type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-2.5 bg-white text-black outline-none rounded"
+              className="w-full px-3 py-2.5 bg-white border border-gray-400 text-black outline-none rounded-sm focus:border-[#006ce4] focus:ring-1 focus:ring-[#006ce4] transition-colors"
             />
           </div>
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && (
+            <p className="text-[#d41111] text-[14px] font-medium">{error}</p>
+          )}
 
-          <button 
-            type="submit" 
+          <button
+            type="submit"
             disabled={loading}
-            className="w-full mt-2 py-3 bg-[#eab308] hover:bg-[#ca8a04] text-white font-semibold rounded transition-colors disabled:opacity-50"
+            className="w-full py-3 bg-[#006ce4] hover:bg-[#0055b3] text-white font-bold text-[15px] rounded-sm transition-colors disabled:opacity-50 mt-2"
           >
-            {loading ? "Loading..." : "SIGN IN"}
+            {loading ? "Signing in..." : "Sign in"}
           </button>
         </form>
 
-        <div className="mt-6 text-center text-sm text-white/80">
-          No account?{" "}
-          <Link href="/register" className="text-[#eab308] hover:underline font-medium">
-            Register
-          </Link>
-        </div>
-      </div>
+        <div className="my-8 border-t border-gray-200"></div>
+
+        <p className="text-[14px] text-gray-600 mb-6 text-center">
+          Or sign in using a social account
+        </p>
+
+        {/* Кнопка Google стилизована под вторичную кнопку макета */}
+        <button
+          onClick={() => signIn("google")}
+          className="w-full py-3 bg-white border border-[#006ce4] text-[#006ce4] font-bold text-[15px] rounded-sm hover:bg-[#f0f6ff] transition-colors flex items-center justify-center gap-2"
+        >
+          <svg className="w-5 h-5" viewBox="0 0 24 24">
+            <path
+              fill="#4285F4"
+              d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+            />
+            <path
+              fill="#34A853"
+              d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+            />
+            <path
+              fill="#FBBC05"
+              d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+            />
+            <path
+              fill="#EA4335"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+            />
+          </svg>
+          Continue with Google
+        </button>
+      </main>
     </div>
-  )
+  );
 }

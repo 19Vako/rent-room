@@ -1,11 +1,15 @@
-"use server"
+"use server";
 
-import clientPromise from "@/lib/mongodb"
-import { signOut } from "@/auth";
+import clientPromise from "@/lib/mongodb";
+import { signOut } from "@/auth/auth";
 import User from "@/types/User";
-import bcrypt from "bcryptjs"
+import bcrypt from "bcryptjs";
 
-export async function registerUser(name: string, email: string, password: string) {
+export async function registerUser(
+  name: string,
+  email: string,
+  password: string,
+) {
   try {
     if (!name || !email || !password) {
       return { success: false, error: "All fields are required" };
@@ -25,8 +29,10 @@ export async function registerUser(name: string, email: string, password: string
     const newUser: User = {
       name,
       email,
-      password: hashedPassword, 
+      password: hashedPassword,
       role: isAdmin ? "ADMIN" : "GUEST",
+      resetToken: undefined,
+      resetTokenExpiry: undefined,
       orders: [],
     };
 
@@ -37,7 +43,6 @@ export async function registerUser(name: string, email: string, password: string
     }
 
     return { success: true, message: "Registration successful" };
-
   } catch (error) {
     console.error("Registration error:", error);
     return { success: false, error: "Failed to create user" };
@@ -45,5 +50,5 @@ export async function registerUser(name: string, email: string, password: string
 }
 
 export async function logout() {
-  await signOut({ redirectTo: "/login" }); 
+  await signOut({ redirectTo: "/login" });
 }

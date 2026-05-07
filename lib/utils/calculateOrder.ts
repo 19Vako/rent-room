@@ -1,7 +1,7 @@
-
-
-export function calculateOrderDetails(pricePerNight: number, dates: { checkIn: string, checkOut: string } | null) {
-
+export function calculateOrderDetails(
+  pricePerNight: number,
+  dates: { checkIn: string; checkOut: string } | null,
+) {
   if (!dates || !dates.checkIn || !dates.checkOut) {
     return { nights: 0, totalPrice: 0 };
   }

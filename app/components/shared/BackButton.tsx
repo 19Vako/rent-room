@@ -1,12 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";  
+import { useRouter } from "next/navigation";
 
 interface BackButtonProps {
-  label?: string;  
-  className?: string; 
+  label?: string;
+  className?: string;
 }
-export default function BackButton({ label = "Back", className = "" }: BackButtonProps) {
+export default function BackButton({
+  label = "Back",
+  className = "",
+}: BackButtonProps) {
   const router = useRouter();
 
   return (
@@ -14,8 +17,18 @@ export default function BackButton({ label = "Back", className = "" }: BackButto
       onClick={() => router.back()}
       className={`flex items-center gap-2 text-black hover:text-[#0071c2] transition-colors font-semibold w-fit ${className}`}
     >
-      <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+      <svg
+        className="w-10 h-10"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          strokeWidth="2"
+          d="M10 19l-7-7m0 0l7-7m-7 7h18"
+        ></path>
       </svg>
       {label}
     </button>

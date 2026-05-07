@@ -1,9 +1,11 @@
-import { ObjectId } from "mongodb"
+import { ObjectId } from "mongodb";
 
 export default interface User {
-    name:string,
-    password:string,
-    email:string,
-    role: "GUEST" | "ADMIN",
-    orders: ObjectId[],
+  name: string;
+  password: string;
+  email: string;
+  role: "GUEST" | "ADMIN";
+  resetToken?: string;
+  resetTokenExpiry?: number;
+  orders: ObjectId[];
 }
