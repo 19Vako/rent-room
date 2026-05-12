@@ -17,12 +17,12 @@ export default async function Header() {
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
               <LogoutButton />
               {session?.user?.role === "ADMIN" && (
                 <Link
                   href="/admin"
-                  className="px-4 py-2 text-sm font-bold text-[#0071c2] border border-[#0071c2] rounded hover:bg-[#0071c2] hover:text-white transition-colors"
+                  className="flex h-15 px-1 py-3 items-center text-sm font-bold text-[#0071c2] border border-[#0071c2] rounded hover:bg-[#0071c2] hover:text-white transition-colors"
                 >
                   Admin Panel
                 </Link>
