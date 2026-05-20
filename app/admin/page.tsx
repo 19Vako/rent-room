@@ -1,5 +1,5 @@
-import AdminHeader from "../components/admin/AdminHeader";
-import DashboardCalendar from "../components/admin/DashboardCalendar";
+import AdminHeader from "../../src/components/admin/AdminHeader";
+import DashboardCalendar from "../../src/components/admin/DashboardCalendar";
 
 export default function Home() {
   return (
