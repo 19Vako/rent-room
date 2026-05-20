@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import BackButton from "@/app/components/shared/BackButton";
-import Room from "@/types/Room";
-import { createRoom } from "@/lib/actions/room.actions";
+import BackButton from "@/src/components/shared/BackButton";
+import Room from "@/src/types/Room";
+import { createRoom } from "@/src/lib/actions/room.actions";
 
 export default function CreateRoomPage() {
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function CreateRoomPage() {
       price: Number(formData.price),
       capacity: Number(formData.capacity),
       description: formData.description,
-      photoUrl: [],  
+      photoUrl: [],
     };
 
     const result = await createRoom(roomDataToSubmit);
@@ -159,12 +159,16 @@ export default function CreateRoomPage() {
 
             {/* Description */}
             <div>
-              <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">Description <span className="text-red-500">*</span></label>
+              <label className="block text-[14px] font-bold text-[#1a1a1a] mb-2">
+                Description <span className="text-red-500">*</span>
+              </label>
               <textarea
                 name="description"
                 required
                 value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, description: e.target.value })
+                }
                 className="w-full text-black border border-gray-400 rounded-sm p-3 text-[14px] focus:ring-2 focus:ring-[#006CE4] outline-none resize-none"
                 placeholder="Describe your room, amenities, and what makes it special..."
                 rows={5}
