@@ -34,7 +34,7 @@ export default function OrdersModalButton() {
     <>
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 text-white text-lg font-semibold rounded hover:bg-blue-800 transition shadow-sm"
+        className="border border-white px-4 py-2 text-white text-xs font-semibold rounded hover:bg-blue-800 transition shadow-sm"
       >
         Orders
       </button>

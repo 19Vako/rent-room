@@ -7,31 +7,32 @@ export default async function AdminHeader() {
   const { success, rooms } = await getAllRooms();
 
   return (
-    <header className="bg-[#003580] border-b border-gray-200 sticky top-0 z-50">
+    <header className="bg-[#003580] border-b border-blue-900 sticky top-0 z-50 shadow-md">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex-shrink-0 flex items-center">
-            <Link href="/admin" className="text-2xl mr-4 font-bold text-white">
+        <div className="flex flex-wrap sm:flex-row justify-between items-center min-h-[4rem] py-2 sm:py-0 gap-3">
+ 
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto justify-between sm:justify-start">
+            <Link href="/admin" className="text-xl sm:text-2xl font-bold text-white hover:text-blue-200 transition-colors">
               RentRoom
             </Link>
-
-            {success && rooms && rooms.length > 0 && (
-              <div className="w-full sm:w-auto mr-4 flex justify-center">
+            
+            <div className="flex flex-wrap items-center gap-2">
+              {success && rooms && rooms.length > 0 && (
                 <AdminRoomSelector rooms={rooms} />
-              </div>
-            )}
-            <OrdersModalButton />
+              )}
+              <OrdersModalButton />
+            </div>
           </div>
 
-          {/* 3. Кнопки справа (На телефонах остаются вверху справа - order-2, на ПК - md:order-3) */}
-          <div className="flex items-center justify-end gap-3 md:gap-4 shrink-0 order-2 md:order-3">
+          <div className="w-full sm:w-auto flex justify-center sm:justify-end">
             <Link
               href="/"
-              className=" px-4 py-2 text-sm  font-bold text-white border border-[#0071c2] rounded hover:bg-blue-800 transition-colors text-center whitespace-nowrap"
+              className="w-full sm:w-auto px-4 py-2 text-xs sm:text-sm font-bold text-white border border-blue-white rounded hover:bg-[#0071c2] transition-all text-center whitespace-nowrap"
             >
-              Back to guest mode
+              Guest Mode
             </Link>
           </div>
+
         </div>
       </div>
     </header>
