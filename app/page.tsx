@@ -1,7 +1,7 @@
-import SearchWidget from "./components/shared/SearchWidget";
-import Header from "./components/shared/Header";
-import RoomList from "./components/shared/RoomList";
-import PriceFilter from "./components/shared/PriceFilter";
+import SearchWidget from "../src/components/shared/SearchWidget";
+import Header from "../src/components/shared/Header";
+import RoomList from "../src/components/shared/RoomList";
+import PriceFilter from "../src/components/shared/PriceFilter";
 
 export default function Home() {
   return (

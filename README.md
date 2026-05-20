@@ -1,36 +1,134 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Rent Room
 
-## Getting Started
+## Стек
 
-First, run the development server:
+| Технологія | Призначення |
+| --- | --- |
+| Next.js 16 | App Router, SSR / SSG / client-side UI |
+| React 19 | UI-компоненти |
+| TypeScript | Типізація і безпека коду |
+| Tailwind CSS 4 | Стилі та адаптивна верстка |
+| NextAuth.js | Аутентифікація і авторизація |
+| MongoDB | Зберігання користувачів, кімнат та бронювань |
+| UploadThing | Завантаження фото для кімнат |
+| Zustand | Клієнтський стан для фільтрів і налаштувань |
+| Jest + Testing Library | Юніт-тести та інтеграції |
+
+## Швидкий старт
+
+1. Встановіть залежності:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+pnpm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Скопіюйте файл оточення:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+cp .env.example .env
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Заповніть значення змінних оточення в `.env`.
 
-## Learn More
+4. Запустіть локально:
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+5. Відкрийте в браузері: `http://localhost:3000`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Конфігурація
 
-## Deploy on Vercel
+| Змінна | Опис |
+| --- | --- |
+| `MONGODB_URI` | URI підключення до MongoDB |
+| `DB_NAME` | Імʼя бази даних |
+| `AUTH_GOOGLE_ID` | Google OAuth client ID |
+| `AUTH_GOOGLE_SECRET` | Google OAuth client secret |
+| `ADMIN_EMAIL` | Email адміністратора |
+| `ORGANIZATION_EMAIL` | Email для відправки листів |
+| `ORGANIZATION_EMAIL_PASS` | Пароль або токен для email |
+| `NEXT_PUBLIC_APP_URL` | Базовий URL додатка |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> Роль `ADMIN` визначається по email з `ADMIN_EMAIL`.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Структура
+
+| Папка | Опис |
+| --- | --- |
+| `app/` | Сторінки, layout, UI-компоненти |
+| `app/api/` | API-роути, включно з UploadThing і NextAuth |
+| `auth/` | Конфігурація NextAuth та аутентифікація |
+| `lib/` | Підключення до MongoDB і серверні дії |
+| `src/lib/actions/` | Бізнес-логіка для користувачів, кімнат, бронювань |
+| `src/types/` | Інтерфейси та типи даних |
+| `src/store/` | Zustand стан |
+| `public/` | Статичні файли |
+
+## Реалізовані фічі
+
+- Email/password логін — вхід та автоматична реєстрація через credentials
+- Google Login — OAuth авторизація через Google
+- Ролі ADMIN / GUEST — доступ до захищених admin-маршрутів
+- Кімнати — створення, редагування, перегляд кімнат
+- Фото кімнат — завантаження з UploadThing
+- Пошук / фільтрація — пошук та сортування списку кімнат
+- Бронювання — створення замовлень і перегляд історії
+- Відновлення пароля — надсилання листа та зміна пароля
+- Тести — серверні тести для логіки MongoDB
+
+## Архітектура
+
+| Компонент | Призначення |
+| --- | --- |
+| NextAuth | Увійти/вийти, JWT-сесія, роль користувача |
+| MongoDB Adapter | Зберігання користувачів та акаунтів |
+| JWT сесія | Зберігає `id` та `role` в cookie |
+| UploadThing | Захищене завантаження фото для адміну |
+| Server Actions | Виконання бізнес-логіки на сервері |
+| Middleware `proxy.ts` | Перенаправлення на /login і захист маршрутів |
+
+## Endpoint-карта
+
+### Сторінки
+
+| Шлях | Опис |
+| --- | --- |
+| `/` | Головна сторінка з переліком кімнат |
+| `/auth/login` | Вхід / реєстрація користувача |
+| `/auth/forgot-password` | Запит на скидання пароля |
+| `/auth/forgot-password/reset-password` | Форма введення нового пароля |
+| `/guestProfile` | Профіль гостя |
+| `/room/[id]` | Детальна сторінка кімнати |
+| `/admin` | Адмінська панель |
+| `/admin/create-room` | Створення кімнати |
+| `/admin/edit-room/[id]` | Редагування кімнати |
+
+### API
+
+| Метод | Шлях | Опис |
+| --- | --- | --- |
+| `POST` | `/api/auth/*` | NextAuth endpoints для логіну/сесії |
+| `GET` | `/api/uploadthing` | Завантаження файлів UploadThing |
+| `POST` | `/api/uploadthing` | Завантаження фото кімнат |
+
+### Серверні дії
+
+| Файл | Опис |
+| --- | --- |
+| `src/lib/actions/room.actions.ts` | Логіка роботи з кімнатами |
+| `src/lib/actions/order.actions.ts` | Логіка бронювань і замовлень |
+| `src/auth/actions/auth.actions.ts` | Скидання та зміна пароля |
+| `src/lib/actions/user.actions.ts` | Створення/пошук користувача, logout |
+
+## Команди
+
+| Команда | Призначення |
+| --- | --- |
+| `pnpm dev` | Запуск дев-сервера |
+| `pnpm build` | Збірка проєкту |
+| `pnpm start` | Запуск production-збірки |
+| `pnpm lint` | Аналіз ESLint |
+| `pnpm format` | Запуск Prettier |
+| `pnpm test` | Запуск Jest тестів |

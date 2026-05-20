@@ -1,5 +1,5 @@
-import { getRoomById } from "@/lib/actions/room.actions";
-import EditRoomForm from "../../../components/admin/EditRoomForm";
+import { getRoomById } from "@/src/lib/actions/room.actions";
+import EditRoomForm from "../../../../src/components/admin/EditRoomForm";
 
 export default async function EditRoomPage({
   params,

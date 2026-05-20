@@ -1,5 +1,5 @@
 import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { auth } from "@/auth/auth";
+import { auth } from "@/src/auth/auth";
 
 const f = createUploadthing();
 
@@ -10,7 +10,7 @@ export const ourFileRouter = {
 
       if (!session?.user || session.user.role !== "ADMIN") {
         throw new Error(
-          "Unauthorized: Только администратор может загружать фото комнат",
+          "Unauthorized",
         );
       }
 
