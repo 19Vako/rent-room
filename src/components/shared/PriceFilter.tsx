@@ -46,7 +46,7 @@ export default function PriceFilter() {
       <h2 className="text-2xl font-bold text-gray-800">Filters</h2>
       <div className="w-full max-w-sm p-4 rounded-xl border border-gray-300 rounded-lg p-4 gap-4 md:gap-6 bg-white shadow-sm hover:shadow-md transition-shadow">
         <h3 className="text-lg font-bold text-gray-900 mb-4">
-          Ваш бюджет (за ночь)
+          Your budget (per night)
         </h3>
 
         <div className="text-gray-700 font-medium mb-6">
