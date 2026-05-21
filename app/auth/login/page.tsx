@@ -67,11 +67,11 @@ export default function LoginPage() {
           </div>
 
           <div>
-            {/* ДОБАВЛЕНО: Flex-контейнер для лейбла и ссылки */}
+            
             <div className="flex justify-between items-center mb-1">
               <label className="block text-[14px] font-bold">Password</label>
               <Link
-                href="/forgot-password"
+                href="/auth/forgot-password"
                 className="text-[14px] text-[#006ce4] hover:underline font-medium"
               >
                 Forgot your password?
