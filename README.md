@@ -1,134 +1,139 @@
 # Rent Room
 
-## Стек
+## Technology stack
 
-| Технологія | Призначення |
+| Technology | Purpose |
 | --- | --- |
-| Next.js 16 | App Router, SSR / SSG / client-side UI |
-| React 19 | UI-компоненти |
-| TypeScript | Типізація і безпека коду |
-| Tailwind CSS 4 | Стилі та адаптивна верстка |
-| NextAuth.js | Аутентифікація і авторизація |
-| MongoDB | Зберігання користувачів, кімнат та бронювань |
-| UploadThing | Завантаження фото для кімнат |
-| Zustand | Клієнтський стан для фільтрів і налаштувань |
-| Jest + Testing Library | Юніт-тести та інтеграції |
+| Next.js 16 | App Router, SSR / SSG, and client-side UI |
+| React 19 | UI components |
+| TypeScript | Type safety |
+| Tailwind CSS 4 | Styling and responsive layouts |
+| NextAuth.js | Authentication and authorization |
+| MongoDB | Stores users, rooms, and bookings |
+| UploadThing | Room photo uploads |
+| Zustand | Client-side filter and settings state |
+| Jest + Testing Library | Unit and integration tests |
 
-## Швидкий старт
+## Quick start
 
-1. Встановіть залежності:
+1. Install dependencies:
 
 ```bash
 pnpm install
 ```
 
-2. Скопіюйте файл оточення:
+2. Copy the environment file:
 
 ```bash
 cp .env.example .env
 ```
 
-3. Заповніть значення змінних оточення в `.env`.
+3. Set the environment variable values in `.env`.
 
-4. Запустіть локально:
+4. Start the development server:
 
 ```bash
 pnpm dev
 ```
 
-5. Відкрийте в браузері: `http://localhost:3000`
+5. Open `http://localhost:3000` in your browser.
 
-## Конфігурація
+## Configuration
 
-| Змінна | Опис |
+| Variable | Description |
 | --- | --- |
-| `MONGODB_URI` | URI підключення до MongoDB |
-| `DB_NAME` | Імʼя бази даних |
+| `MONGODB_URI` | MongoDB connection URI |
+| `DB_NAME` | Database name |
 | `AUTH_GOOGLE_ID` | Google OAuth client ID |
 | `AUTH_GOOGLE_SECRET` | Google OAuth client secret |
-| `ADMIN_EMAIL` | Email адміністратора |
-| `ORGANIZATION_EMAIL` | Email для відправки листів |
-| `ORGANIZATION_EMAIL_PASS` | Пароль або токен для email |
-| `NEXT_PUBLIC_APP_URL` | Базовий URL додатка |
+| `ADMIN_EMAIL` | Administrator email address |
+| `ORGANIZATION_EMAIL` | Email address used to send messages |
+| `ORGANIZATION_EMAIL_PASS` | Email account password or token |
+| `NEXT_PUBLIC_APP_URL` | Public application URL |
 
-> Роль `ADMIN` визначається по email з `ADMIN_EMAIL`.
+> The `ADMIN` role is assigned based on the email in `ADMIN_EMAIL`.
 
-## Структура
+## Project structure
 
-| Папка | Опис |
+| Directory | Description |
 | --- | --- |
-| `app/` | Сторінки, layout, UI-компоненти |
-| `app/api/` | API-роути, включно з UploadThing і NextAuth |
-| `auth/` | Конфігурація NextAuth та аутентифікація |
-| `lib/` | Підключення до MongoDB і серверні дії |
-| `src/lib/actions/` | Бізнес-логіка для користувачів, кімнат, бронювань |
-| `src/types/` | Інтерфейси та типи даних |
-| `src/store/` | Zustand стан |
-| `public/` | Статичні файли |
+| `app/` | Pages, layouts, and UI components |
+| `app/api/` | API routes, including UploadThing and NextAuth |
+| `src/auth/` | NextAuth configuration and authentication |
+| `src/lib/` | MongoDB connection and server actions |
+| `src/lib/actions/` | Business logic for users, rooms, and bookings |
+| `src/types/` | Data interfaces and types |
+| `src/store/` | Zustand state |
+| `public/` | Static assets |
 
-## Реалізовані фічі
+## Features
 
-- Email/password логін — вхід та автоматична реєстрація через credentials
-- Google Login — OAuth авторизація через Google
-- Ролі ADMIN / GUEST — доступ до захищених admin-маршрутів
-- Кімнати — створення, редагування, перегляд кімнат
-- Фото кімнат — завантаження з UploadThing
-- Пошук / фільтрація — пошук та сортування списку кімнат
-- Бронювання — створення замовлень і перегляд історії
-- Відновлення пароля — надсилання листа та зміна пароля
-- Тести — серверні тести для логіки MongoDB
+- Email and password login, with automatic registration through credentials
+- Google OAuth login
+- `ADMIN` and `GUEST` roles with protected admin routes
+- Room creation, editing, and browsing
+- Room photo uploads through UploadThing
+- Room search, filtering, and sorting
+- Booking creation and booking history
+- Room analytics with monthly confirmed booking values and a forecast
+- Password reset by email
+- Server-side tests for MongoDB business logic
 
-## Архітектура
+> The admin forecast allocates confirmed booking values across months by occupied nights and uses the average of the previous six complete months. A forecast is available when bookings occurred in at least three of those months. Since the system does not track actual payments or expenses, analytics show an estimate of booking value, not profit.
 
-| Компонент | Призначення |
+## Architecture
+
+| Component | Purpose |
 | --- | --- |
-| NextAuth | Увійти/вийти, JWT-сесія, роль користувача |
-| MongoDB Adapter | Зберігання користувачів та акаунтів |
-| JWT сесія | Зберігає `id` та `role` в cookie |
-| UploadThing | Захищене завантаження фото для адміну |
-| Server Actions | Виконання бізнес-логіки на сервері |
-| Middleware `proxy.ts` | Перенаправлення на /login і захист маршрутів |
+| NextAuth | Sign-in, sign-out, JWT sessions, and user roles |
+| MongoDB Adapter | Stores users and accounts |
+| JWT session | Stores `id` and `role` in a cookie |
+| UploadThing | Secure photo uploads for administrators |
+| Server Actions | Server-side business logic |
+| `proxy.ts` | Redirects to the sign-in page and protects routes |
 
-## Endpoint-карта
+## Routes
 
-### Сторінки
+### Pages
 
-| Шлях | Опис |
+| Path | Description |
 | --- | --- |
-| `/` | Головна сторінка з переліком кімнат |
-| `/auth/login` | Вхід / реєстрація користувача |
-| `/auth/forgot-password` | Запит на скидання пароля |
-| `/auth/forgot-password/reset-password` | Форма введення нового пароля |
-| `/guestProfile` | Профіль гостя |
-| `/room/[id]` | Детальна сторінка кімнати |
-| `/admin` | Адмінська панель |
-| `/admin/create-room` | Створення кімнати |
-| `/admin/edit-room/[id]` | Редагування кімнати |
+| `/` | Home page with the room listing |
+| `/auth/login` | Sign-in and registration |
+| `/auth/forgot-password` | Request a password reset |
+| `/auth/forgot-password/reset-password` | Set a new password |
+| `/guest/guestProfile` | Guest profile |
+| `/guest/room/[id]` | Room details |
+| `/admin` | Admin dashboard |
+| `/admin/create-room` | Create a room |
+| `/admin/edit-room/[id]` | Edit a room |
+| `/admin/forecast` | Room booking value analytics and forecast |
 
 ### API
 
-| Метод | Шлях | Опис |
+| Method | Path | Description |
 | --- | --- | --- |
-| `POST` | `/api/auth/*` | NextAuth endpoints для логіну/сесії |
-| `GET` | `/api/uploadthing` | Завантаження файлів UploadThing |
-| `POST` | `/api/uploadthing` | Завантаження фото кімнат |
+| `POST` | `/api/auth/*` | NextAuth sign-in and session endpoints |
+| `GET` | `/api/uploadthing` | UploadThing file uploads |
+| `POST` | `/api/uploadthing` | Room photo uploads |
 
-### Серверні дії
+### Server actions
 
-| Файл | Опис |
+| File | Description |
 | --- | --- |
-| `src/lib/actions/room.actions.ts` | Логіка роботи з кімнатами |
-| `src/lib/actions/order.actions.ts` | Логіка бронювань і замовлень |
-| `src/auth/actions/auth.actions.ts` | Скидання та зміна пароля |
-| `src/lib/actions/user.actions.ts` | Створення/пошук користувача, logout |
+| `src/lib/actions/room.actions.ts` | Room operations |
+| `src/lib/actions/order.actions.ts` | Booking and order operations |
+| `src/lib/actions/forecast.actions.ts` | Room booking analytics |
+| `src/auth/actions/auth.actions.ts` | Password reset and updates |
+| `src/lib/actions/user.actions.ts` | User creation, lookup, and sign-out |
 
-## Команди
+## Commands
 
-| Команда | Призначення |
+| Command | Purpose |
 | --- | --- |
-| `pnpm dev` | Запуск дев-сервера |
-| `pnpm build` | Збірка проєкту |
-| `pnpm start` | Запуск production-збірки |
-| `pnpm lint` | Аналіз ESLint |
-| `pnpm format` | Запуск Prettier |
-| `pnpm test` | Запуск Jest тестів |
+| `pnpm dev` | Start the development server |
+| `pnpm build` | Build the project |
+| `pnpm start` | Start the production build |
+| `pnpm lint` | Run ESLint |
+| `pnpm format` | Run Prettier |
+| `pnpm test` | Run Jest tests |

@@ -21,8 +21,8 @@ export default function PriceFilter() {
   const currentMin = localMin ?? priceRange?.min ?? absoluteMin;
   const currentMax = localMax ?? priceRange?.max ?? absoluteMax;
 
-  // Показываем фильтр цены только после появления данных в списке.
-  // Иначе на старте/во время загрузки он выглядит "в пустоту".
+  // Show the price filter only after room data is available.
+  // Otherwise, it appears empty on initial load.
   if (isLoading || rooms.length === 0) return null;
 
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -50,8 +50,8 @@ export default function PriceFilter() {
         </h3>
 
         <div className="text-gray-700 font-medium mb-6">
-          UAH {currentMin.toLocaleString("uk-UA")} — UAH{" "}
-          {currentMax.toLocaleString("uk-UA")}
+          UAH {currentMin.toLocaleString("en-US")} — UAH{" "}
+          {currentMax.toLocaleString("en-US")}
           {currentMax === absoluteMax ? "+" : ""}
         </div>
 

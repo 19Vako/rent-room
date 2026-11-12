@@ -438,7 +438,7 @@ describe("Room Actions", () => {
       expect(result.success).toBe(true);
       expect(result.updatedCount).toBe(1);
 
-      // Проверяем, что данные ушли с приведением типов (Number)
+      // Verify that the values were sent with numeric types.
       expect(mockUpdateOne).toHaveBeenCalledWith(
         { _id: new ObjectId(roomId) },
         expect.objectContaining({
