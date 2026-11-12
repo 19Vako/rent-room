@@ -81,6 +81,10 @@ pnpm dev
 
 > The admin forecast allocates confirmed booking values across months by occupied nights and uses the average of the previous six complete months. A forecast is available when bookings occurred in at least three of those months. Since the system does not track actual payments or expenses, analytics show an estimate of booking value, not profit.
 
+## Requirements
+
+See the [software requirements](requirements/software-requirements.md) for documented functional and non-functional requirements, user scenarios, and known limitations based on the current implementation.
+
 ## Architecture
 
 | Component | Purpose |
