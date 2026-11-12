@@ -23,7 +23,7 @@ export default function SettingsForm({
 }: SettingsFormProps) {
   return (
     <>
-      {/* --- Блок дат --- */}
+      {/* --- Date range --- */}
       <div className="p-5 border-b border-gray-200 space-y-4">
         <h3 className="font-bold text-black">Select Dates</h3>
         <div className="space-y-3">
@@ -53,7 +53,7 @@ export default function SettingsForm({
         </div>
       </div>
 
-      {/* --- Блок статуса и цены --- */}
+      {/* --- Room status and price --- */}
       <div className="p-5">
         <h4 className="font-medium text-black mb-3">
           Room Status for selected dates

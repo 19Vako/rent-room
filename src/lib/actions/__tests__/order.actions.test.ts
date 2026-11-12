@@ -172,7 +172,7 @@ describe("Server Actions: Orders", () => {
       mockToArray.mockResolvedValue([
         {
           _id: new ObjectId("507f1f77bcf86cd799439011"),
-          roomName: "Люкс",
+          roomName: "Suite",
           type: "DELUXE",
           price: 1500,
           capacity: 3,
@@ -184,7 +184,7 @@ describe("Server Actions: Orders", () => {
 
       expect(result.success).toBe(true);
       expect(result.rooms).toHaveLength(1);
-      expect(result.rooms?.[0].roomName).toBe("Люкс");
+      expect(result.rooms?.[0].roomName).toBe("Suite");
       expect(mockFind).toHaveBeenCalledTimes(3);
     });
   });

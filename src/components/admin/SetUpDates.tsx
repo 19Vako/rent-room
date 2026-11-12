@@ -142,7 +142,7 @@ export default function SetUpDates() {
         </div>
       </div>
 
-      {/* Вынесенная модалка */}
+      {/* Extracted modal */}
       <ActionModal
         isOpen={modal.isOpen}
         type={modal.type}
