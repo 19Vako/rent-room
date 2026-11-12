@@ -11,15 +11,8 @@ export default function ImageSlider({ photos }: ImageSliderProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
   const sliderRef = useRef<HTMLDivElement>(null);
 
-  const handleScroll = () => {
-    if (sliderRef.current) {
-      const { scrollLeft, clientWidth } = sliderRef.current;
-      const exactSlide = scrollLeft / clientWidth;
-      setCurrentSlide(exactSlide);
-    }
-  };
-
   const scrollToSlide = (index: number) => {
+    if (index < 0 || index >= photos.length) return;
     if (sliderRef.current) {
       sliderRef.current.scrollTo({
         left: sliderRef.current.clientWidth * index,
@@ -34,7 +27,6 @@ export default function ImageSlider({ photos }: ImageSliderProps) {
       <div className="relative w-full h-[350px] md:h-[500px] rounded-lg overflow-hidden group">
         <div
           ref={sliderRef}
-          onScroll={handleScroll}
           className="flex w-full h-full overflow-x-auto snap-x snap-mandatory scrollbar-hide"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
