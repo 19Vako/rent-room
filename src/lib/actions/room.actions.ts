@@ -14,10 +14,9 @@ export async function getAllRooms(): Promise<{
   rooms?: Omit<Room[], "status">;
   error?: string;
 }> {
-  const client = await clientPromise;
-  const db = client.db(process.env.DB_NAME);
-
   try {
+    const client = await clientPromise;
+    const db = client.db(process.env.DB_NAME);
     const rooms = await db.collection("rooms").find().toArray();
 
     const formattedRooms = rooms.map((room) => {

@@ -23,6 +23,12 @@ export default async function AdminHeader() {
                 <AdminRoomSelector rooms={rooms} />
               )}
               <OrdersModalButton />
+              <Link
+                href="/admin/forecast"
+                className="rounded border border-white px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#0071c2]"
+              >
+                Forecast
+              </Link>
             </div>
           </div>
 
