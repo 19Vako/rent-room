@@ -114,7 +114,7 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
             <EditRoomPhotos initialRoom={initialRoom} />
 
             <div className="flex-1 flex flex-col gap-4 bg-white p-6 rounded-lg shadow-sm border border-gray-200 h-fit">
-              {/* НАСТРОЙКИ КОМНАТЫ */}
+              {/* ROOM SETTINGS */}
               <div className="border border-gray-200 bg-white p-6 rounded shadow-sm">
                 <h2 className="text-xl font-bold mb-6 text-gray-900">
                   Room Settings
@@ -221,7 +221,7 @@ export default function EditRoomForm({ initialRoom }: { initialRoom: Room }) {
                 </div>
               </div>
 
-              {/* DANGER ZONE (УДАЛЕНИЕ) */}
+              {/* DANGER ZONE (DELETION) */}
               <div className="border border-red-200 bg-red-50 p-6 rounded shadow-sm">
                 <h2 className="text-lg font-bold mb-2 text-red-800">
                   Danger Zone

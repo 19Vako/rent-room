@@ -82,7 +82,7 @@ export default function BookingPanel({ room }: { room: Room }) {
         </div>
 
         <div className="text-3xl font-extrabold text-[#0071c2]">
-          UAH {totalPrice.toLocaleString("uk-UA")}
+          UAH {totalPrice.toLocaleString("en-US")}
         </div>
 
         <div className="text-xs text-gray-500 mt-1.5 font-medium">

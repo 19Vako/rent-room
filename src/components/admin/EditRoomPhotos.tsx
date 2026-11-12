@@ -42,7 +42,7 @@ export default function EditRoomPhotos({ initialRoom }: { initialRoom: Room }) {
             ></path>
           </svg>
           Add photos
-          {/* Невидимый слой UploadThing поверх синей кнопки */}
+          {/* Invisible UploadThing layer over the blue button */}
           <div className="absolute inset-0 z-10 opacity-0 [&_button]:w-full [&_button]:h-full [&_label]:w-full [&_label]:h-full cursor-pointer">
             <UploadButton<OurFileRouter, "roomImage">
               endpoint="roomImage"
@@ -82,14 +82,14 @@ export default function EditRoomPhotos({ initialRoom }: { initialRoom: Room }) {
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             />
 
-            {/* БЕЙДЖ: Preferred main photo */}
+            {/* BADGE: Preferred main photo */}
             {i === 0 && (
               <div className="absolute top-0 left-0 bg-[#f58220] text-white text-[10px] font-bold px-1.5 py-0.5 rounded-br z-10 shadow-sm">
                 Preferred main photo
               </div>
             )}
 
-            {/* КНОПКА УДАЛЕНИЯ ПРИ НАВЕДЕНИИ */}
+            {/* DELETE BUTTON ON HOVER */}
             <button
               onClick={() => handleRemovePhoto(i)}
               className="absolute bottom-2 right-2 bg-white p-1.5 rounded shadow-md text-red-600 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50"
@@ -162,7 +162,7 @@ export default function EditRoomPhotos({ initialRoom }: { initialRoom: Room }) {
         </div>
       </div>
 
-      {/* ВЫВОД СООБЩЕНИЙ ОБ УСПЕХЕ/ОШИБКЕ */}
+      {/* SUCCESS AND ERROR MESSAGES */}
       {message && (
         <div
           className={`mt-2 p-3 rounded text-sm ${message.type === "success" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}

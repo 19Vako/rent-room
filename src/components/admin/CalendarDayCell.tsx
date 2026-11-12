@@ -61,7 +61,7 @@ export default function CalendarDayCell({
               w-full
             `}
           >
-            {/* Текст внутри плашки */}
+            {/* Label inside the booking or closure bar */}
             {(event.isStart || (day - 1 + firstDay) % 7 === 0) && (
               <span className="px-2 font-medium">
                 {event.type === "ORDER" ? "Booked" : "Closed"}
